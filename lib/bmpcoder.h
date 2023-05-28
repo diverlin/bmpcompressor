@@ -1,5 +1,5 @@
-#ifndef BMPCOMPRESSOR_H
-#define BMPCOMPRESSOR_H
+#ifndef BMPCODER_H
+#define BMPCODER_H
 
 #include <string>
 #include <vector>
@@ -19,4 +19,4 @@ private:
     friend class BmpCoderTest;
 };
 
-#endif // BMPCOMPRESSOR_H
+#endif // BMPCODER_H

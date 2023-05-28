@@ -1,5 +1,5 @@
-#ifndef BMPCOMPRESSORTEST_H
-#define BMPCOMPRESSORTEST_H
+#ifndef BMPCODERTEST_H
+#define BMPCODERTEST_H
 
 #include <QObject>
 
@@ -14,4 +14,4 @@ private slots:
     void testEncodingDecodingRow();
 };
 
-#endif // BMPCOMPRESSORTEST_H
+#endif // BMPCODERTEST_H

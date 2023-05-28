@@ -1,5 +1,5 @@
-#ifndef BMPLOADERTEST_H
-#define BMPLOADERTEST_H
+#ifndef BMPREADERTEST_H
+#define BMPREADERTEST_H
 
 #include <QObject>
 
@@ -13,4 +13,4 @@ private slots:
     void testLoader();
 };
 
-#endif // BMPLOADERTEST_H
+#endif // BMPREADERTEST_H
