@@ -1,9 +1,6 @@
 #include "bmpcompressor.h"
 #include "bmploader.h"
 
-#include <bitset>
-#include <iostream>
-
 bool BmpCompressor::compress(const std::string& inFilePath) const
 {
     bool result = false;
@@ -37,29 +34,54 @@ std::string BmpCompressor::encodeRow(const std::string& row) const
             }
         }
         if (whiteCount == 4) {
-            encodedRow += "0";
+            encodedRow += static_cast<unsigned char>(0x00);
         } else if (blackCount == 4) {
-            encodedRow += "10";
+            encodedRow += static_cast<unsigned char>(0x02);
         } else {
-            encodedRow += "11";
+            encodedRow += static_cast<unsigned char>(0x03);
             for (int offset: offsets) {
                 unsigned char pixel = row[i+offset];
-                std::bitset<8> binary(pixel);
-                encodedRow += binary.to_string();
+                encodedRow += pixel;
             }
         }
     }
 
-    std::cout << "encoded = " << encodedRow << std::endl;
-
     return std::move(encodedRow);
 }
 
-std::string BmpCompressor::decodeRow(const std::string&) const
+std::string BmpCompressor::decodeRow(const std::string& encodedRow) const
 {
     std::string decodedRow;
+    decodedRow.reserve(3*encodedRow.size());
 
-    // TODO: implement me
+    bool isUnpackingVarColors = false;
+    int varColorCounter = 0;
+    for (unsigned char ch: encodedRow) {
+        if (!isUnpackingVarColors) {
+            if (ch == 0x00) {
+                append(decodedRow, 0xff, 4); // append 4 bytes of white
+            } else if (ch == 0x02) {
+                append(decodedRow, 0x00, 4); // append 4 bytes of black
+            } else if (ch == 0x03) {
+                isUnpackingVarColors = true;
+                varColorCounter = 0;
+            }
+        } else {
+            append(decodedRow, ch);
+            varColorCounter++;
+            if (varColorCounter==4) {
+                isUnpackingVarColors = false;
+            }
+        }
+    }
 
     return std::move(decodedRow);
+}
+
+void BmpCompressor::append(std::string& src, unsigned char ch, int repeat) const
+{
+    while (repeat > 0) {
+        src += ch;
+        repeat--;
+    }
 }

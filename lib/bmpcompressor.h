@@ -14,6 +14,7 @@ public:
 private:
     std::string encodeRow(const std::string&) const;
     std::string decodeRow(const std::string&) const;
+    void append(std::string&, unsigned char, int repeat = 1) const;
 
     friend class BmpCompressorTest;
 };

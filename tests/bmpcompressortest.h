@@ -11,7 +11,7 @@ public:
 
 private slots:
 //    void testCompression();
-    void testEncodingRow();
+    void testEncodingDecodingRow();
 };
 
 #endif // BMPCOMPRESSORTEST_H
