@@ -4,19 +4,19 @@ INCLUDEPATH += $$PWD/../lib
 
 SOURCES += \
     $$PWD/main.cpp \
-    $$PWD/bmpcompressortest.cpp \
-    $$PWD/bmploadertest.cpp \
+    $$PWD/bmpcodertest.cpp \
+    $$PWD/bmpreadertest.cpp \
 
 HEADERS += \
-    $$PWD/bmpcompressortest.h \
-    $$PWD/bmploadertest.h \
+    $$PWD/bmpcodertest.h \
+    $$PWD/bmpreadertest.h \
 
-LIBS += -L$$OUT_PWD/../lib -llibbpmcompressor
+LIBS += -L$$OUT_PWD/../lib -llibbpmcoder
 
 RESOURCES += \
     tests.qrc
 
-TARGET = bmpcompressortest
+TARGET = bmpcodertest
 
 
 

@@ -2,13 +2,13 @@ TEMPLATE = lib
 
 HEADERS += \
     $$PWD/rawimagedata.h \
-    $$PWD/bmploader.h \
-    $$PWD/bmpcompressor.h \
+    $$PWD/bmpreader.h \
+    $$PWD/bmpcoder.h \
 
 SOURCES += \
-    $$PWD/bmploader.cpp \
-    $$PWD/bmpcompressor.cpp \
+    $$PWD/bmpreader.cpp \
+    $$PWD/bmpcoder.cpp \
 
-TARGET = libbpmcompressor
+TARGET = libbpmcoder
 
 INSTALLS += target

@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-class BmpCompressorTest : public QObject {
+class BmpCoderTest : public QObject {
     Q_OBJECT
 public:
-    BmpCompressorTest()=default;
-    ~BmpCompressorTest()=default;
+    BmpCoderTest()=default;
+    ~BmpCoderTest()=default;
 
 private slots:
     void testCompression();

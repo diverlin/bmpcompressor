@@ -1,4 +1,4 @@
-#include "bmploader.h"
+#include "bmpreader.h"
 #include <fstream>
 #include <vector>
 
@@ -26,7 +26,7 @@ struct BMPHeader {
 #pragma pack(pop)
 } // namespace
 
-bool BmpLoader::load(const std::string& inFilePath)
+bool BmpReader::readFromFile(const std::string& inFilePath)
 {
     m_rawData.clear();
 

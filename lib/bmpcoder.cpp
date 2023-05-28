@@ -1,10 +1,10 @@
-#include "bmpcompressor.h"
-#include "bmploader.h"
+#include "bmpcoder.h"
+#include "bmpreader.h"
 
 #include <map>
 #include <iostream>
 
-bool BmpCompressor::compress(const std::string& inFilePath) const
+bool BmpCoder::compress(const std::string& inFilePath) const
 {
     bool result = false;
 
@@ -12,9 +12,9 @@ bool BmpCompressor::compress(const std::string& inFilePath) const
     std::map<int, std::vector<unsigned char>> encodedRowsMap;
     std::size_t currentRowNum = 0;
 
-    BmpLoader loader;
-    if (loader.load(inFilePath)) {
-        const RawImageData& data = loader.data();
+    BmpReader reader;
+    if (reader.readFromFile(inFilePath)) {
+        const RawImageData& data = reader.data();
         const int width = data.width;
         std::cout << "image dimensions, w=" << data.width << ", h=" << data.height << std::endl;
         int counter = 0;
@@ -31,11 +31,14 @@ bool BmpCompressor::compress(const std::string& inFilePath) const
         for (; it != rowsMap.end(); ++it) {
             const std::vector<unsigned char>& vec = it->second;
             encodedRowsMap[it->first] = encodeRow(vec);
+            auto decoded = decodeRow(encodedRowsMap[it->first]);
+            std::cout << "encoded length =" << encodedRowsMap[it->first].size() << ", decoded len=" << decoded.size() << std::endl;
         }
 
         std::cout << "rows num=" << currentRowNum << std::endl;
         std::cout << "elements in first row=" << rowsMap[0].size() << std::endl;
         std::cout << "elements in last row=" << rowsMap[data.height-1].size() << std::endl;
+
 
         // todo implement processing
         result = true;
@@ -44,7 +47,7 @@ bool BmpCompressor::compress(const std::string& inFilePath) const
     return result;
 }
 
-std::vector<unsigned char> BmpCompressor::encodeRow(const std::vector<unsigned char>& row) const
+std::vector<unsigned char> BmpCoder::encodeRow(const std::vector<unsigned char>& row) const
 {
     std::vector<unsigned char> encodedRow;
     encodedRow.reserve(row.size());
@@ -91,7 +94,7 @@ std::vector<unsigned char> BmpCompressor::encodeRow(const std::vector<unsigned c
     return std::move(encodedRow);
 }
 
-std::vector<unsigned char> BmpCompressor::decodeRow(const std::vector<unsigned char>& encodedRow) const
+std::vector<unsigned char> BmpCoder::decodeRow(const std::vector<unsigned char>& encodedRow) const
 {
     std::vector<unsigned char> decodedRow;
     decodedRow.reserve(3*encodedRow.size());
@@ -120,7 +123,7 @@ std::vector<unsigned char> BmpCompressor::decodeRow(const std::vector<unsigned c
     return std::move(decodedRow);
 }
 
-void BmpCompressor::append(std::vector<unsigned char>& src, unsigned char ch, int repeat) const
+void BmpCoder::append(std::vector<unsigned char>& src, unsigned char ch, int repeat) const
 {
     while (repeat > 0) {
         src.push_back(ch);
