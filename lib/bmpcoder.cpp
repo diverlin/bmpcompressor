@@ -12,7 +12,7 @@ bool BmpCoder::compress(const std::string& inFilePath) const
     std::map<int, std::vector<unsigned char>> encodedRowsMap;
     std::size_t currentRowNum = 0;
 
-    BmpReader reader;
+    BmpLoader reader;
     if (reader.readFromFile(inFilePath)) {
         const RawImageData& data = reader.data();
         const int width = data.width;

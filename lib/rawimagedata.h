@@ -17,6 +17,8 @@ struct RawImageData {
         width = -1;
         height = -1;
     }
+    uint64_t size() const { return width*height; }
+
     bool hasData() const { return data != nullptr; }
     int width = -1;
     int height = -1;

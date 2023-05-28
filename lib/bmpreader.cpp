@@ -1,10 +1,11 @@
 #include "bmpreader.h"
+
 #include <fstream>
 #include <vector>
-
 #include <iostream>
 
-namespace {
+#include <cstdint>
+
 #pragma pack(push, 1)
 struct BMPHeader {
     char signature[2];
@@ -24,9 +25,8 @@ struct BMPHeader {
     uint32_t importantColors;
 };
 #pragma pack(pop)
-} // namespace
 
-bool BmpReader::readFromFile(const std::string& inFilePath)
+bool BmpLoader::readFromFile(const std::string& inFilePath)
 {
     m_rawData.clear();
 
@@ -69,4 +69,36 @@ bool BmpReader::readFromFile(const std::string& inFilePath)
     return result;
 }
 
+bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& rawData)
+{
+    BMPHeader header{};
+    header.signature[0] = 'B';
+    header.signature[1] = 'M';
+    header.fileSize = sizeof(BMPHeader) + rawData.size();
+    header.dataOffset = sizeof(BMPHeader);
+    header.headerSize = 40;
+    header.width = rawData.width;
+    header.height = rawData.height;
+    header.planes = 1;
+    header.bitsPerPixel = 8; // 8 bits per pixel
+    header.compression = 0; // no compression
+    header.imageSize = 0; // can be set to 0 for uncompressed images
+    header.horizontalResolution = 0;
+    header.verticalResolution = 0;
+    header.colors = 0; // all colors are used
+    header.importantColors = 0; // all colors are important
+
+    std::ofstream file(filePath, std::ios::binary);
+    if (!file) {
+        std::cerr << "Error opening file: " << filePath << std::endl;
+        return false;
+    }
+
+    file.write(reinterpret_cast<const char*>(&header), sizeof(BMPHeader));
+    file.write(reinterpret_cast<const char*>(rawData.data), rawData.size());
+
+    file.close();
+
+    return true;
+}
 

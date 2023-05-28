@@ -1,5 +1,6 @@
 #include "bmpreadertest.h"
 #include <bmpreader.h>
+#include <bmpwriter.h>
 
 #include <QFileInfo>
 #include <QFile>
@@ -32,14 +33,21 @@ std::string extractEmbedded(const QString& embeddedFilePath) {
 
 } // namespace
 
-void BmpLoaderTest::testLoader()
+void BmpLoaderTest::testReader()
 {
-    BmpReader reader;
-    QVERIFY(reader.readFromFile(extractEmbedded(":/data/test-image-1-gs.bmp")));
-    QCOMPARE(reader.data().width, 825);
-    QCOMPARE(reader.data().height, 1200);
+    BmpLoader loader;
+    QVERIFY(loader.readFromFile(extractEmbedded(":/data/test-image-1-gs.bmp")));
+    QCOMPARE(loader.data().width, 825);
+    QCOMPARE(loader.data().height, 1200);
 
-    QVERIFY(reader.readFromFile(extractEmbedded(":/data/test-image-2-gs.bmp")));
-    QCOMPARE(reader.data().width, 825);
-    QCOMPARE(reader.data().height, 1200);
+    QVERIFY(loader.readFromFile(extractEmbedded(":/data/test-image-2-gs.bmp")));
+    QCOMPARE(loader.data().width, 825);
+    QCOMPARE(loader.data().height, 1200);
+}
+
+void BmpLoaderTest::testWriter()
+{
+    BmpLoader loader;
+    QVERIFY(loader.readFromFile(extractEmbedded(":/data/test-image-1-gs.bmp")));
+    QVERIFY(loader.writeToFile("sample.bmp", loader.data()));
 }
