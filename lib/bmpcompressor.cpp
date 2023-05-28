@@ -21,6 +21,7 @@ std::string BmpCompressor::encodeRow(const std::string& row) const
     encodedRow.reserve(row.size());
 
     static std::vector<int> offsets{0,1,2,3};
+    int handledSymbolsCounter = 0;
     for (std::size_t i=0; i<=row.size()-4; i+=4) {
         int whiteCount = 0;
         int blackCount = 0;
@@ -43,6 +44,17 @@ std::string BmpCompressor::encodeRow(const std::string& row) const
                 unsigned char pixel = row[i+offset];
                 encodedRow += pixel;
             }
+        }
+        handledSymbolsCounter+=4;
+    }
+
+    // handle tail if exists, as adding 11 and than colors like they are
+    const int tailSize = row.size() - handledSymbolsCounter;
+    if (tailSize > 0) {
+        encodedRow += static_cast<unsigned char>(0x03);
+        std::string tail = row.substr(row.size()-tailSize);
+        for (unsigned char ch: tail) {
+            encodedRow += ch;
         }
     }
 
