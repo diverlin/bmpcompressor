@@ -6,5 +6,6 @@
 void BmpCompressorTest::testCompression()
 {
     BmpCompressor compressor;
-    QVERIFY(compressor.compress());
+    QVERIFY(compressor.compress("test-image-1-gs.bmp"));
+    QVERIFY(compressor.compress("test-image-2-gs.bmp"));
 }
