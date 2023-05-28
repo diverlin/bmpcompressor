@@ -1,6 +1,5 @@
-#include "bmpreadertest.h"
-#include <bmpreader.h>
-#include <bmpwriter.h>
+#include "bmploadertest.h"
+#include <bmploader.h>
 
 #include <QFileInfo>
 #include <QFile>

@@ -5,11 +5,11 @@ INCLUDEPATH += $$PWD/../lib
 SOURCES += \
     $$PWD/main.cpp \
     $$PWD/bmpcodertest.cpp \
-    $$PWD/bmpreadertest.cpp \
+    $$PWD/bmploadertest.cpp \
 
 HEADERS += \
     $$PWD/bmpcodertest.h \
-    $$PWD/bmpreadertest.h \
+    $$PWD/bmploadertest.h \
 
 LIBS += -L$$OUT_PWD/../lib -llibbpmcoder
 

@@ -1,4 +1,4 @@
-#include "bmpreader.h"
+#include "bmploader.h"
 
 #include <fstream>
 #include <vector>
