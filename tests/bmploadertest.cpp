@@ -1,11 +1,10 @@
 #include "bmploadertest.h"
 #include <bmploader.h>
 
-#include <QTest>
-
 #include <QFileInfo>
-#include <QTemporaryFile>
 #include <QFile>
+
+#include <QTest>
 
 namespace {
 
