@@ -1,7 +1,5 @@
 QT += testlib
 
-include($$PWD/../lib/lib.pri)
-
 INCLUDEPATH += $$PWD/../lib
 
 SOURCES += \

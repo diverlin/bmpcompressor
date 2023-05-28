@@ -1,6 +1,10 @@
 TEMPLATE = lib
 
-include($$PWD/lib.pri)
+HEADERS += \
+    $$PWD/bmpcompressor.h \
+
+SOURCES += \
+    $$PWD/bmpcompressor.cpp \
 
 TARGET = bpmcompressor
 
