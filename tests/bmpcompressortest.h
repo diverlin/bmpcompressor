@@ -10,7 +10,7 @@ public:
     ~BmpCompressorTest()=default;
 
 private slots:
-//    void testCompression();
+    void testCompression();
     void testEncodingDecodingRow();
 };
 
