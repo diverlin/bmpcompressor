@@ -12,7 +12,7 @@ public:
 private slots:
     void testReadWriteTiny24Bit();
     void testReadWrite24Bit();
-//    void testReadWrite8Bit();
+    void testReadWrite8Bit();
 };
 
 #endif // BMPREADERTEST_H

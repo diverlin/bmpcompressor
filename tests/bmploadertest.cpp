@@ -31,11 +31,24 @@ std::string extractEmbedded(const QString& embeddedFilePath) {
     return result;
 }
 
+int findNextDivisibleByFour(int num) {
+    int remainder = num % 4;
+    if (remainder == 0) {
+        // The number is already divisible by 4
+        return num;
+    } else {
+        // Calculate the next closest number divisible by 4
+        return num + (4 - remainder);
+    }
+}
+
 } // namespace
 
 void BmpLoaderTest::testReadWriteTiny24Bit()
 {
-    BmpLoader loader(24);
+    const int bitsPerPixel = 24;
+    const int bytesPerPixel = bitsPerPixel / 8;
+    BmpLoader loader(bitsPerPixel);
 
     std::vector<QSize> sizes({QSize(1,1), QSize(2,1), QSize(3,1), QSize(4,1)});
     for (const QSize& size: sizes) {
@@ -56,7 +69,7 @@ void BmpLoaderTest::testReadWriteTiny24Bit()
 
         QCOMPARE(readedRawImageDataOrig.width(), w);
         QCOMPARE(readedRawImageDataOrig.height(), h);
-        //QCOMPARE(readedRawImageDataOrig.bytes().size(), w*h*3); // this case wont work due to padding
+        QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*w)*h);
 
         QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
@@ -69,7 +82,9 @@ void BmpLoaderTest::testReadWriteTiny24Bit()
 
 void BmpLoaderTest::testReadWrite24Bit()
 {
-    BmpLoader loader(24);
+    const int bitsPerPixel = 24;
+    const int bytesPerPixel = bitsPerPixel / 8;
+    BmpLoader loader(bitsPerPixel);
 
     const QString embeddedInputFilePath = ":/data/128x64_24bits.bmp";
     const QString outputFilePath = "out_"+QFileInfo(embeddedInputFilePath).fileName();
@@ -77,7 +92,7 @@ void BmpLoaderTest::testReadWrite24Bit()
     const RawImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
     QCOMPARE(readedRawImageDataOrig.width(), 128);
     QCOMPARE(readedRawImageDataOrig.height(), 64);
-    QCOMPARE(readedRawImageDataOrig.bytes().size(), 128*64*3);
+    QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*128)*64);
 
     QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
@@ -87,22 +102,24 @@ void BmpLoaderTest::testReadWrite24Bit()
     QCOMPARE(readedRawImageDataTwin.bytes(), readedRawImageDataOrig.bytes());
 }
 
-//void BmpLoaderTest::testReadWrite8Bit()
-//{
-//    BmpLoader loader;
+void BmpLoaderTest::testReadWrite8Bit()
+{
+    const int bytesPerPixel = 1;
+    BmpLoader loader;
 
-//    const QString embeddedInputFilePath = ":/data/test-image-1-825x1200_gs.bmp";
-//    const QString outputFilePath = "out_"+QFileInfo(embeddedInputFilePath).fileName();
+    const QString embeddedInputFilePath = ":/data/test-image-1-825x1200_gs.bmp";
+    const QString outputFilePath = "out_"+QFileInfo(embeddedInputFilePath).fileName();
 
-//    const RawImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
-//    QCOMPARE(readedRawImageDataOrig.width(), 825);
-//    QCOMPARE(readedRawImageDataOrig.height(), 1200);
-//    //QCOMPARE(readedRawImageDataOrig.bytes().size(), 825*1200);
+    const RawImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
+    QCOMPARE(readedRawImageDataOrig.width(), 825);
+    QCOMPARE(readedRawImageDataOrig.height(), 1200);
+    const int padding = 3;
+    QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*825)*1200);
 
-//    QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
+    QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
-//    const RawImageData readedRawImageDataTwin = loader.readFromFile(outputFilePath.toStdString());
-//    QCOMPARE(readedRawImageDataTwin.width(), 825);
-//    QCOMPARE(readedRawImageDataTwin.height(), 1200);
-//    //QCOMPARE(readedRawImageDataTwin.bytes(), readedRawImageDataOrig.bytes());
-//}
+    const RawImageData readedRawImageDataTwin = loader.readFromFile(outputFilePath.toStdString());
+    QCOMPARE(readedRawImageDataTwin.width(), 825);
+    QCOMPARE(readedRawImageDataTwin.height(), 1200);
+    QCOMPARE(readedRawImageDataTwin.bytes(), readedRawImageDataOrig.bytes());
+}
