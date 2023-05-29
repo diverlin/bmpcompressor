@@ -21,14 +21,6 @@ public:
 
     const std::vector<std::byte>& bytes() const { return m_bytes; }
 
-//    void moveBytes(std::vector<std::byte>& bytes) {
-//        m_bytes.clear();
-//        std::swap(m_bytes, bytes);
-//    }
-    void resize() {
-        m_bytes.resize(m_expectedBytesNum);
-    }
-
 private:
     int m_width = 0;
     int m_height = 0;

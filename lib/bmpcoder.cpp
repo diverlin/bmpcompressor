@@ -1,5 +1,6 @@
 #include "bmpcoder.h"
 #include "bmploader.h"
+#include "encodedimagedata.h"
 
 #include <map>
 #include <iostream>
@@ -8,9 +9,7 @@ bool BmpCoder::compress(const std::string& inFilePath) const
 {
     bool result = false;
 
-    std::map<int, std::vector<std::byte>> rowsMap;
-    std::map<int, std::vector<std::byte>> encodedRowsMap;
-    std::size_t currentRowNum = 0;
+    EncodedImageData encodedImageData;
 
     BmpLoader loader;
     RawImageData rawDataImage = loader.readFromFile(inFilePath);
@@ -19,27 +18,19 @@ bool BmpCoder::compress(const std::string& inFilePath) const
         const int width = rawDataImage.width();
         const int height = rawDataImage.height();
         std::cout << "image dimensions, w=" << width << ", h=" << height << std::endl;
+
+        std::vector<std::byte> row;
         int counter = 0;
         for (std::size_t i=0; i<bytes.size(); ++i) {
-            rowsMap[currentRowNum].push_back(bytes.at(i));
+            row.push_back(bytes.at(i));
             counter++;
             if (counter == width) {
-                currentRowNum++;
                 counter = 0;
+                std::vector<std::byte> encodedRow = encodeRow(row);
+                encodedImageData.addEncodedRow(encodedRow);
+                row.clear();
             }
         }
-
-        auto it = rowsMap.begin();
-        for (; it != rowsMap.end(); ++it) {
-            const std::vector<std::byte>& vec = it->second;
-            encodedRowsMap[it->first] = encodeRow(vec);
-            auto decoded = decodeRow(encodedRowsMap[it->first]);
-            std::cout << "encoded length =" << encodedRowsMap[it->first].size() << ", decoded len=" << decoded.size() << std::endl;
-        }
-
-        std::cout << "rows num=" << currentRowNum << std::endl;
-        std::cout << "elements in first row=" << rowsMap[0].size() << std::endl;
-        std::cout << "elements in last row=" << rowsMap[height-1].size() << std::endl;
 
         // todo implement processing
         result = true;
