@@ -53,6 +53,15 @@ void printHeader(const BMPHeader& header)
 }
 }
 
+BmpLoader::BmpLoader(int bitsPerPixel)
+    :
+      m_bitsPerPixel(bitsPerPixel)
+{
+    if ((bitsPerPixel != 8) && (bitsPerPixel != 24)) {
+        std::cerr << "the bitsPerPixel=" << bitsPerPixel << " format is not supported, please use 8 or 24 values. The modle may work not properly due to wrong header intiialization" << std::endl;
+    }
+}
+
 RawImageData BmpLoader::readFromFile(const std::string& filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
@@ -62,8 +71,8 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
         file.read(reinterpret_cast<char*>(&header), sizeof(BMPHeader));
 
         // debug
-        //std::cout << "readFromFile, header from file:" << filePath << std::endl;
-        //printHeader(header);
+        // std::cout << "readFromFile, header from file:" << filePath << std::endl;
+        // printHeader(header);
         // debug
 
         // check if the file has the correct BMP signature
@@ -75,8 +84,7 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
                 file.read(reinterpret_cast<char*>(rawImageData.m_bytes.data()), header.imageSize);
 
                 // debug
-                //std::cout << "header.imageSize(calculated)=" << header.imageSize << std::endl;
-                //std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
+                // std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
                 // debug
 
                 return std::move(rawImageData);
@@ -98,14 +106,18 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
 bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& rawData)
 {
     BMPHeader header{};
-    const int headerSize = sizeof(header);
+
+    int colorPalleteOffset = 0;
+    if (m_bitsPerPixel == 8) {
+        colorPalleteOffset = 256 * sizeof(uint32_t);
+    }
 
     header.signature[0] = 'B';
     header.signature[1] = 'M';
-    header.fileSize = headerSize + rawData.bytes().size();
+    header.fileSize = sizeof(BMPHeader) + colorPalleteOffset + rawData.bytes().size();
     header.reserved = 0;
-    header.dataOffset = headerSize;
-    header.headerSize = headerSize-14; // Subtract the size of the file signature and file size fields
+    header.dataOffset = sizeof(BMPHeader) + colorPalleteOffset;
+    header.headerSize = sizeof(BMPHeader)-14; // Subtract the size of the file signature and file size fields
     header.width = rawData.width();
     header.height = rawData.height();
     header.planes = 1;
@@ -114,12 +126,16 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
     header.imageSize = rawData.bytes().size(); // can be set to 0 for uncompressed images
     header.xPixelsPerMeter = 0;
     header.yPixelsPerMeter = 0;
-    header.totalColors = 0; // all colors are used
-    header.importantColors = 0; // all colors are important
+    if (m_bitsPerPixel == 8) {
+        header.totalColors = 256;
+    } else {
+        header.totalColors = 0;
+    }
+    header.importantColors = 0;
 
     // debug
-    //std::cout << "writeToFile, header to file:" << filePath << std::endl;
-    //printHeader(header);
+    // std::cout << "writeToFile, header to file:" << filePath << std::endl;
+    // printHeader(header);
     // debug
 
     std::ofstream file(filePath, std::ios::binary);
@@ -128,12 +144,21 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
         return false;
     }
 
+    // Write the BMP header
     file.write(reinterpret_cast<const char*>(&header), sizeof(BMPHeader));
+
+    // Write the color palette
+    if (colorPalleteOffset > 0) {
+        for (int i = 0; i < 256; ++i) {
+            uint32_t color = (i << 16) | (i << 8) | i;
+            file.write(reinterpret_cast<const char*>(&color), sizeof(uint32_t));
+        }
+    }
+
+    // Write the grayscale pixel data
     file.write(reinterpret_cast<const char*>(rawData.bytes().data()), rawData.bytes().size());
 
     file.close();
 
     return true;
 }
-
-

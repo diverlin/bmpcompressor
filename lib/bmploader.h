@@ -7,10 +7,8 @@
 
 class BmpLoader {
 public:
-    BmpLoader(int bitsPerPixel = 8):m_bitsPerPixel(bitsPerPixel) {}
+    BmpLoader(int bitsPerPixel = 8);
     ~BmpLoader()=default;
-
-    void setExpectedBitsPerPixel(int bitsPerPixel) { m_bitsPerPixel = bitsPerPixel; }
 
     RawImageData readFromFile(const std::string& inFilePath);
     bool writeToFile(const std::string& inFilePath, const RawImageData& rawData);
