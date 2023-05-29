@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-#pragma pack(push, 1)
+#pragma pack(push, 1) // // Ensure the struct is packed without padding
 struct BMPHeader {
     // BITMAPFILEHEADER
     char signature[2];      // File type signature ('BM' for BMP)
@@ -62,23 +62,21 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
         file.read(reinterpret_cast<char*>(&header), sizeof(BMPHeader));
 
         // debug
-        std::cout << "readFromFile, header from file:" << filePath << std::endl;
-        printHeader(header);
+        //std::cout << "readFromFile, header from file:" << filePath << std::endl;
+        //printHeader(header);
         // debug
 
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'M') {
             if (header.bitsPerPixel == m_bitsPerPixel) {
-                header.imageSize = header.width * header.height * header.bitsPerPixel/8;
                 RawImageData rawImageData(header.width, header.height, header.imageSize);
 
                 file.seekg(header.dataOffset, std::ios::beg);
                 file.read(reinterpret_cast<char*>(rawImageData.m_bytes.data()), header.imageSize);
-                rawImageData.resize(); // for some files we have 0x00 at the end, let's drop them
 
                 // debug
-                std::cout << "header.imageSize(calculated)=" << header.imageSize << std::endl;
-                std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
+                //std::cout << "header.imageSize(calculated)=" << header.imageSize << std::endl;
+                //std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
                 // debug
 
                 return std::move(rawImageData);
@@ -107,23 +105,21 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
     header.fileSize = headerSize + rawData.bytes().size();
     header.reserved = 0;
     header.dataOffset = headerSize;
-    header.headerSize = headerSize;
+    header.headerSize = headerSize-14; // Subtract the size of the file signature and file size fields
     header.width = rawData.width();
     header.height = rawData.height();
     header.planes = 1;
     header.bitsPerPixel = m_bitsPerPixel;
     header.compression = 0; // no compression
     header.imageSize = rawData.bytes().size(); // can be set to 0 for uncompressed images
-    //header.xPixelsPerMeter = 11811;
-    //header.yPixelsPerMeter = 11811;
     header.xPixelsPerMeter = 0;
     header.yPixelsPerMeter = 0;
     header.totalColors = 0; // all colors are used
     header.importantColors = 0; // all colors are important
 
     // debug
-    std::cout << "writeToFile, header to file:" << filePath << std::endl;
-    printHeader(header);
+    //std::cout << "writeToFile, header to file:" << filePath << std::endl;
+    //printHeader(header);
     // debug
 
     std::ofstream file(filePath, std::ios::binary);
