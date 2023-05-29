@@ -1,5 +1,5 @@
 #include "bmpcoder.h"
-#include "bmpreader.h"
+#include "bmploader.h"
 
 #include <map>
 #include <iostream>
@@ -8,41 +8,41 @@ bool BmpCoder::compress(const std::string& inFilePath) const
 {
     bool result = false;
 
-    std::map<int, std::vector<unsigned char>> rowsMap;
-    std::map<int, std::vector<unsigned char>> encodedRowsMap;
-    std::size_t currentRowNum = 0;
+//    std::map<int, std::vector<unsigned char>> rowsMap;
+//    std::map<int, std::vector<unsigned char>> encodedRowsMap;
+//    std::size_t currentRowNum = 0;
 
-    BmpLoader reader;
-    if (reader.readFromFile(inFilePath)) {
-        const RawImageData& data = reader.data();
-        const int width = data.width;
-        std::cout << "image dimensions, w=" << data.width << ", h=" << data.height << std::endl;
-        int counter = 0;
-        for (std::size_t i=0; i<data.width * data.height; ++i) {
-            rowsMap[currentRowNum].push_back(data.data[i]);
-            counter++;
-            if (counter == width) {
-                currentRowNum++;
-                counter = 0;
-            }
-        }
+//    BmpLoader loader;
+//    if (loader.readFromFile(inFilePath)) {
+//        const RawImageData& data = loader.data();
+//        const int width = data.width;
+//        std::cout << "image dimensions, w=" << data.width << ", h=" << data.height << std::endl;
+//        int counter = 0;
+//        for (std::size_t i=0; i<data.width * data.height; ++i) {
+//            rowsMap[currentRowNum].push_back(data.data[i]);
+//            counter++;
+//            if (counter == width) {
+//                currentRowNum++;
+//                counter = 0;
+//            }
+//        }
 
-        auto it = rowsMap.begin();
-        for (; it != rowsMap.end(); ++it) {
-            const std::vector<unsigned char>& vec = it->second;
-            encodedRowsMap[it->first] = encodeRow(vec);
-            auto decoded = decodeRow(encodedRowsMap[it->first]);
-            std::cout << "encoded length =" << encodedRowsMap[it->first].size() << ", decoded len=" << decoded.size() << std::endl;
-        }
+//        auto it = rowsMap.begin();
+//        for (; it != rowsMap.end(); ++it) {
+//            const std::vector<unsigned char>& vec = it->second;
+//            encodedRowsMap[it->first] = encodeRow(vec);
+//            auto decoded = decodeRow(encodedRowsMap[it->first]);
+//            std::cout << "encoded length =" << encodedRowsMap[it->first].size() << ", decoded len=" << decoded.size() << std::endl;
+//        }
 
-        std::cout << "rows num=" << currentRowNum << std::endl;
-        std::cout << "elements in first row=" << rowsMap[0].size() << std::endl;
-        std::cout << "elements in last row=" << rowsMap[data.height-1].size() << std::endl;
+//        std::cout << "rows num=" << currentRowNum << std::endl;
+//        std::cout << "elements in first row=" << rowsMap[0].size() << std::endl;
+//        std::cout << "elements in last row=" << rowsMap[data.height-1].size() << std::endl;
 
 
-        // todo implement processing
-        result = true;
-    }
+//        // todo implement processing
+//        result = true;
+//    }
 
     return result;
 }

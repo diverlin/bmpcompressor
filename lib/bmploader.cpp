@@ -8,54 +8,82 @@
 
 #pragma pack(push, 1)
 struct BMPHeader {
-    char signature[2];
-    uint32_t fileSize;
-    uint32_t reserved;
-    uint32_t dataOffset;
-    uint32_t headerSize;
-    int32_t width;
-    int32_t height;
-    uint16_t planes;
-    uint16_t bitsPerPixel;
-    uint32_t compression;
-    uint32_t imageSize;
-    int32_t horizontalResolution;
-    int32_t verticalResolution;
-    uint32_t colors;
-    uint32_t importantColors;
+    // BITMAPFILEHEADER
+    char signature[2];      // File type signature ('BM' for BMP)
+    uint32_t fileSize;      // Size of the BMP file in bytes
+    uint32_t reserved;      // Reserved, set to 0
+    uint32_t dataOffset;    // Offset of the pixel data in bytes
+
+    // BITMAPINFOHEADER
+    uint32_t headerSize;    // Size of the BMPINFOHEADER structure in bytes
+    int32_t width;          // Width of the image in pixels
+    int32_t height;         // Height of the image in pixels
+    uint16_t planes;        // Number of color planes, typically 1
+    uint16_t bitsPerPixel;  // Number of bits per pixel
+    uint32_t compression;   // Compression method used (0 for uncompressed)
+    uint32_t imageSize;     // Size of the raw image data in bytes (including padding)
+    int32_t xPixelsPerMeter; // Horizontal resolution (pixels per meter)
+    int32_t yPixelsPerMeter; // Vertical resolution (pixels per meter)
+    uint32_t totalColors;    // Number of colors used in the image (0 for maximum)
+    uint32_t importantColors; // Number of important colors (0 for all)
+
+    // Additional fields or padding, if any
 };
 #pragma pack(pop)
 
-bool BmpLoader::readFromFile(const std::string& inFilePath)
+namespace {
+void printHeader(const BMPHeader& header)
 {
-    m_rawData.clear();
+    std::cout << "header.signature[0]=" << header.signature[0] << std::endl;
+    std::cout << "header.signature[1]=" << header.signature[1] << std::endl;
+    std::cout << "header.fileSize=" << header.fileSize << std::endl;
+    std::cout << "header.dataOffset=" << header.dataOffset << std::endl;
 
-    bool result = false;
+    std::cout << "header.headerSize=" << header.headerSize << std::endl;
+    std::cout << "header.width=" << header.width << std::endl;
+    std::cout << "header.height=" << header.height << std::endl;
+    std::cout << "header.planes=" << header.planes << std::endl;
+    std::cout << "header.bitsPerPixel=" << header.bitsPerPixel << std::endl;
+    std::cout << "header.compression=" << header.compression << std::endl;
+    std::cout << "header.imageSize=" << header.imageSize << std::endl;
+    std::cout << "header.xPixelsPerMeter=" << header.xPixelsPerMeter << std::endl;
+    std::cout << "header.yPixelsPerMeter=" << header.yPixelsPerMeter << std::endl;
+    std::cout << "header.totalColors=" << header.totalColors << std::endl;
+    std::cout << "header.importantColors=" << header.importantColors << std::endl << std::endl;
+}
+}
 
-    std::ifstream file(inFilePath, std::ios::binary);
+RawImageData BmpLoader::readFromFile(const std::string& filePath)
+{
+    std::ifstream file(filePath, std::ios::binary);
 
     if (file.is_open()) {
         BMPHeader header;
         file.read(reinterpret_cast<char*>(&header), sizeof(BMPHeader));
 
+        // debug
+        std::cout << "readFromFile, header from file:" << filePath << std::endl;
+        printHeader(header);
+        // debug
+
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'M') {
-            // check if the file is 8 bits per pixel (GS)
-            if (header.bitsPerPixel == 8) {
-                // calculate the size of the image data
-                int dataSize = header.fileSize - header.dataOffset;
+            if (header.bitsPerPixel == m_bitsPerPixel) {
+                header.imageSize = header.width * header.height * header.bitsPerPixel/8;
+                RawImageData rawImageData(header.width, header.height, header.imageSize);
 
-                // read the image data
-                unsigned char* data = new unsigned char[header.width*header.height*3];
-                file.read(reinterpret_cast<char*>(data), dataSize);
+                file.seekg(header.dataOffset, std::ios::beg);
+                file.read(reinterpret_cast<char*>(rawImageData.m_bytes.data()), header.imageSize);
+                rawImageData.resize(); // for some files we have 0x00 at the end, let's drop them
 
-                m_rawData.width = header.width;
-                m_rawData.height = header.height;
-                m_rawData.data = data;
-                m_rawData.dataSize = header.imageSize;
-                result = true;
+                // debug
+                std::cout << "header.imageSize(calculated)=" << header.imageSize << std::endl;
+                std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
+                // debug
+
+                return std::move(rawImageData);
             } else {
-                std::cout << "invalid BMP file format. Expected 8 bits per pixel. But got=" << header.bitsPerPixel << std::endl;
+                std::cout << "invalid BMP file format. Expected " << m_bitsPerPixel << " bits per pixel. But got=" << header.bitsPerPixel << std::endl;
             }
         } else {
             std::cout << "invalid BMP file. Signature mismatch." << std::endl;
@@ -66,27 +94,37 @@ bool BmpLoader::readFromFile(const std::string& inFilePath)
         std::cout << "failed to open the file." << std::endl;
     }
 
-    return result;
+    return RawImageData{};
 }
 
 bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& rawData)
 {
     BMPHeader header{};
+    const int headerSize = sizeof(header);
+
     header.signature[0] = 'B';
     header.signature[1] = 'M';
-    header.fileSize = sizeof(BMPHeader) + rawData.size();
-    header.dataOffset = sizeof(BMPHeader);
-    header.headerSize = 40;
-    header.width = rawData.width;
-    header.height = rawData.height;
+    header.fileSize = headerSize + rawData.bytes().size();
+    header.reserved = 0;
+    header.dataOffset = headerSize;
+    header.headerSize = headerSize;
+    header.width = rawData.width();
+    header.height = rawData.height();
     header.planes = 1;
-    header.bitsPerPixel = 8; // 8 bits per pixel
+    header.bitsPerPixel = m_bitsPerPixel;
     header.compression = 0; // no compression
-    header.imageSize = 0; // can be set to 0 for uncompressed images
-    header.horizontalResolution = 0;
-    header.verticalResolution = 0;
-    header.colors = 0; // all colors are used
+    header.imageSize = rawData.bytes().size(); // can be set to 0 for uncompressed images
+    //header.xPixelsPerMeter = 11811;
+    //header.yPixelsPerMeter = 11811;
+    header.xPixelsPerMeter = 0;
+    header.yPixelsPerMeter = 0;
+    header.totalColors = 0; // all colors are used
     header.importantColors = 0; // all colors are important
+
+    // debug
+    std::cout << "writeToFile, header to file:" << filePath << std::endl;
+    printHeader(header);
+    // debug
 
     std::ofstream file(filePath, std::ios::binary);
     if (!file) {
@@ -95,10 +133,11 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
     }
 
     file.write(reinterpret_cast<const char*>(&header), sizeof(BMPHeader));
-    file.write(reinterpret_cast<const char*>(rawData.data), rawData.size());
+    file.write(reinterpret_cast<const char*>(rawData.bytes().data()), rawData.bytes().size());
 
     file.close();
 
     return true;
 }
+
 

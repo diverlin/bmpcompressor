@@ -10,8 +10,9 @@ public:
     ~BmpLoaderTest()=default;
 
 private slots:
-    void testReader();
-    void testWriter();
+    void testReadWriteTiny24Bit();
+//    void testReadWrite24Bit();
+//    void testReadWrite8Bit();
 };
 
 #endif // BMPREADERTEST_H

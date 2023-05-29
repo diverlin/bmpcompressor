@@ -1,6 +1,12 @@
 <RCC>
     <qresource prefix="/">
-        <file>data/test-image-1-gs.bmp</file>
-        <file>data/test-image-2-gs.bmp</file>
+        <file>data/test-image-1-825x1200_gs.bmp</file>
+        <file>data/test-image-2-825x1200_gs.bmp</file>
+        <file>data/128x64_24bits.bmp</file>
+        <file>data/6x3_24bits.bmp</file>
+        <file>data/2x1_24bits.bmp</file>
+        <file>data/4x1_24bits.bmp</file>
+        <file>data/1x1_24bits.bmp</file>
+        <file>data/3x1_24bits.bmp</file>
     </qresource>
 </RCC>

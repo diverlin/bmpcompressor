@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QTest>
 
-#include "bmpreadertest.h"
+#include "bmploadertest.h"
 #include "bmpcodertest.h"
 
 int main(int argc, char *argv[])

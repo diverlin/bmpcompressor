@@ -2,28 +2,40 @@
 #define RAWIMAGEDATA_H
 
 #include <cstdint>
+#include <vector>
 
-struct RawImageData {
+class RawImageData {
+public:
     RawImageData()=default;
-    ~RawImageData() {
-        clear();
+    RawImageData(unsigned int width, unsigned int height, unsigned int expectedBytesNum):
+        m_width(width)
+        , m_height(height)
+        , m_expectedBytesNum(expectedBytesNum)
+    {
+        m_bytes.resize(expectedBytesNum);
     }
-    void clear() {
-        if (data != nullptr) {
-            delete[] data;
-            data = nullptr;
-        }
-        dataSize = 0;
-        width = -1;
-        height = -1;
-    }
-    uint64_t size() const { return width*height; }
+    ~RawImageData()=default;
 
-    bool hasData() const { return data != nullptr; }
-    int width = -1;
-    int height = -1;
-    unsigned char* data = nullptr;
-    uint64_t dataSize = 0;
+    int width() const { return m_width; }
+    int height() const { return m_height; }
+
+    const std::vector<std::byte>& bytes() const { return m_bytes; }
+
+//    void moveBytes(std::vector<std::byte>& bytes) {
+//        m_bytes.clear();
+//        std::swap(m_bytes, bytes);
+//    }
+    void resize() {
+        m_bytes.resize(m_expectedBytesNum);
+    }
+
+private:
+    int m_width = 0;
+    int m_height = 0;
+    std::vector<std::byte> m_bytes;
+    std::size_t m_expectedBytesNum = 0;
+
+    friend class BmpLoader;
 };
 
 #endif // RAWIMAGEDATA_H

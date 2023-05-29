@@ -7,16 +7,16 @@
 
 class BmpLoader {
 public:
-    BmpLoader()=default;
+    BmpLoader(int bitsPerPixel = 8):m_bitsPerPixel(bitsPerPixel) {}
     ~BmpLoader()=default;
 
-    bool readFromFile(const std::string& inFilePath);
+    void setExpectedBitsPerPixel(int bitsPerPixel) { m_bitsPerPixel = bitsPerPixel; }
+
+    RawImageData readFromFile(const std::string& inFilePath);
     bool writeToFile(const std::string& inFilePath, const RawImageData& rawData);
 
-    const RawImageData& data() const { return m_rawData; }
-
 private:
-    RawImageData m_rawData;
+    int m_bitsPerPixel = 8;
 };
 
 #endif // BMPLOADER_H
