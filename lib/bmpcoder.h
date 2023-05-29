@@ -12,9 +12,9 @@ public:
     bool compress(const std::string& inFilePath) const;
 
 private:
-    std::vector<unsigned char> encodeRow(const std::vector<unsigned char>&) const;
-    std::vector<unsigned char> decodeRow(const std::vector<unsigned char>&) const;
-    void append(std::vector<unsigned char>&, unsigned char, int repeat = 1) const;
+    std::vector<std::byte> encodeRow(const std::vector<std::byte>&) const;
+    std::vector<std::byte> decodeRow(const std::vector<std::byte>&) const;
+    void append(std::vector<std::byte>&, std::byte, int repeat = 1) const;
 
     friend class BmpCoderTest;
 };
