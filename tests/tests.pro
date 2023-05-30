@@ -1,6 +1,7 @@
 QT += testlib
 
 INCLUDEPATH += $$PWD/../lib
+LIBS += -L$$OUT_PWD/../lib -llibbpmcoder
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -17,7 +18,7 @@ HEADERS += \
     $$PWD/encodedimagedatatest.h \
     $$PWD/helper.h \
 
-LIBS += -L$$OUT_PWD/../lib -llibbpmcoder
+
 
 RESOURCES += \
     tests.qrc

@@ -24,6 +24,8 @@ public:
     const QList<QString>& extensionFilters() const { return m_extensionFilters; }
     void adjustFilter(const QString&);
 
+    const QString& rootPath() const { return m_rootPath; }
+
 private:
     struct FileItem {
         QString name;

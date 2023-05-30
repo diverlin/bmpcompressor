@@ -25,6 +25,10 @@ private:
     MessageBox* m_messageBox = nullptr;
 
     void showMessageBox(const QString& title, const QString& message);
+
+    void handleClickOnPng(const QString& fileName);
+    void handleClickOnBmp(const QString& fileName);
+    void handleClickOnBarch(const QString& fileName);
 };
 
 #endif // MAINWINDOW_H

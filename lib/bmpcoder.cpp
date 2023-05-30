@@ -25,7 +25,7 @@ std::shared_ptr<EncodedImageData> BmpCoder::loadBarch(const std::string& filePat
 }
 
 
-std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImageData>& rawImageData) const
+std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImageData>& rawImageData)
 {
     if (rawImageData) {
         if (rawImageData->isValid()) {
@@ -48,15 +48,15 @@ std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImag
             }
             return encodedImageData;
         } else {
-            std::cerr << "invalid rawImageData structure, cannot encode" << std::endl;
+            error("invalid rawImageData structure, cannot encode");
         }
     } else {
-        std::cerr << "rawImageData is null, cannot encode" << std::endl;
+        error("rawImageData is null, cannot encode");
     }
     return nullptr;
 }
 
-std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<EncodedImageData>& encodedImageData) const
+std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<EncodedImageData>& encodedImageData)
 {
     if (encodedImageData) {
         if (encodedImageData->isValid()) {
@@ -81,10 +81,10 @@ std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<Encoded
             return decodedImageData;
         }
         else {
-            std::cerr << "invalid encodedImageData structure, cannot decode" << std::endl;
+            error("invalid encodedImageData structure, cannot decode");
         }
     } else {
-        std::cerr << "encodedImageData is null, cannot decode" << std::endl;
+        error("encodedImageData is null, cannot decode");
     }
     return nullptr;
 }
@@ -96,7 +96,7 @@ bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<RawImageD
         BmpLoader loader;
         result = loader.writeToFile(filePath, *data);
     } else {
-        std::cerr << "decodedImageData is null, cannot save" << std::endl;
+        error("decodedImageData is null, cannot save");
     }
     return result;
 }
@@ -109,7 +109,7 @@ bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<EncodedIm
         BarchLoader loader;
         result = loader.writeToFile(filePath, *data);
     } else {
-        std::cerr << "encodedImageData is null, cannot save" << std::endl;
+        error("encodedImageData is null, cannot save");
     }
 
     return result;
@@ -228,4 +228,10 @@ void BmpCoder::append(std::vector<std::byte>& src, std::byte ch, int repeat) con
         src.push_back(ch);
         repeat--;
     }
+}
+
+void BmpCoder::error(const std::string& msg)
+{
+    m_errorMsg = msg;
+    std::cerr << msg << std::endl;
 }

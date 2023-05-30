@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "filesmodel.h"
 #include "messagebox.h"
+#include "bmpcoder.h"
 
 #include <QListView>
 #include <QFileInfo>
@@ -43,9 +44,45 @@ MainWindow::MainWindow(const QString& startupPath)
     QObject::connect(m_view, &QListView::clicked, [this](const QModelIndex &index) {
         QString fileName = m_filesModel->data(index, FilesModel::FileNameDataRole).toString();
         qDebug() << "Clicked file:" << fileName;
+        if (fileName.toLower().endsWith(".png")) {
+            handleClickOnPng(fileName);
+        } else if (fileName.toLower().endsWith(".bmp")) {
+            handleClickOnBmp(fileName);
+        } else if (fileName.toLower().endsWith(".barch")) {
+            handleClickOnBarch(fileName);
+        }
     });
+}
 
-    showMessageBox("test", "test");
+void MainWindow::handleClickOnPng(const QString& fileName)
+{
+    showMessageBox("wrong format", "The *.png format is not supported!");
+}
+
+void MainWindow::handleClickOnBmp(const QString& fileName)
+{
+    const std::string input = QString(m_filesModel->rootPath()+"/"+fileName).toStdString();
+    QString baseFileName = QString(fileName).replace(".bmp", "");
+    std::string output = QString(m_filesModel->rootPath()+"/"+baseFileName + ".packed.barch").toStdString();
+
+    BmpCoder coder;
+
+    if (!coder.encode(input, output)) {
+        showMessageBox("encoding error", coder.errorMsg().c_str());
+    }
+}
+
+void MainWindow::handleClickOnBarch(const QString& fileName)
+{
+    const std::string input = QString(m_filesModel->rootPath()+"/"+fileName).toStdString();
+    QString baseFileName = QString(fileName).replace(".packed.barch", "");
+    std::string output = QString(m_filesModel->rootPath()+"/"+baseFileName + ".unpacked.bmp").toStdString();
+
+    BmpCoder coder;
+
+    if (!coder.decode(input, output)) {
+        showMessageBox("decoding error", coder.errorMsg().c_str());
+    }
 }
 
 void MainWindow::showMessageBox(const QString& title, const QString& message)
