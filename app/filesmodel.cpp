@@ -19,13 +19,19 @@ FilesModel::~FilesModel()
 
 }
 
+void FilesModel::adjustFilter(const QString& filters)
+{
+    m_extensionFilters = filters.split(", ");
+    refresh();
+}
+
 void FilesModel::refresh()
 {
     m_fileData.clear();
 
     QDir directory(m_rootPath);
 
-    directory.setNameFilters({"*.bmp", "*.png"});
+    directory.setNameFilters(m_extensionFilters);
     directory.setFilter(QDir::Files | QDir::NoDotAndDotDot); // Set filters for files and exclude "." and ".."
 
     QFileInfoList fileList = directory.entryInfoList();
@@ -33,6 +39,11 @@ void FilesModel::refresh()
         int fileSizeInKb = fi.size()/100;
         m_fileData.append(FileItem{fi.fileName(), QString("%1Kb").arg(fileSizeInKb)});
     }
+
+    // Emit signals to notify the view of the data changes
+    QModelIndex topLeft = createIndex(0, 0);
+    QModelIndex bottomRight = createIndex(rowCount() - 1, 0);
+    emit dataChanged(topLeft, bottomRight);
 }
 
 int FilesModel::rowCount(const QModelIndex& parent) const

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 class QListView;
+class QComboBox;
 
 class FilesModel;
 
@@ -15,7 +16,9 @@ public:
 
 private:
     FilesModel* m_filesModel = nullptr;
+
     QListView* m_view = nullptr;
+    QComboBox* m_cbExtFilter = nullptr;
     QWidget* m_centralWidget = nullptr;
 };
 

@@ -1,7 +1,7 @@
 #include <QApplication>
 
 #include <mainwindow.h>
-#include <filemodel.h>
+#include <filesmodel.h>
 
 #include <QFileInfo>
 #include <QFileSystemModel>

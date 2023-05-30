@@ -1,9 +1,10 @@
 #include "mainwindow.h"
-#include "filemodel.h"
+#include "filesmodel.h"
 
 #include <QListView>
 #include <QFileInfo>
 #include <QVBoxLayout>
+#include <QComboBox>
 
 MainWindow::MainWindow(const QString& startupPath)
     : QMainWindow()
@@ -23,7 +24,19 @@ MainWindow::MainWindow(const QString& startupPath)
     QVBoxLayout* layout = new QVBoxLayout;
     m_centralWidget->setLayout(layout);
 
+    m_cbExtFilter = new QComboBox;
+    m_cbExtFilter->addItem(m_filesModel->extensionFilters().join(", "));
+    for (const QString& filter: qAsConst(m_filesModel->extensionFilters())) {
+        m_cbExtFilter->addItem(filter);
+    }
+
+    layout->addWidget(m_cbExtFilter);
     layout->addWidget(m_view);
+
+    connect(m_cbExtFilter, &QComboBox::currentTextChanged, this, [this](const QString& currentText){
+        qInfo() << "current text changed=" << currentText;
+        m_filesModel->adjustFilter(currentText);
+    });
 }
 
 

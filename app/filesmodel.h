@@ -7,6 +7,7 @@
 
 class FilesModel final : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     explicit FilesModel(const QString& rootPath, const QList<QString>& extensionFilters, QObject* parent = nullptr);
     ~FilesModel() override final;
@@ -14,6 +15,9 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const override final;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override final;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override final;
+
+    const QList<QString>& extensionFilters() const { return m_extensionFilters; }
+    void adjustFilter(const QString&);
 
 private:
     struct FileItem {
