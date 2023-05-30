@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "jobfactory.h"
+
 class QListView;
 class QComboBox;
 
@@ -23,6 +25,8 @@ private:
     QWidget* m_centralWidget = nullptr;
 
     MessageBox* m_messageBox = nullptr;
+
+    JobFactory m_jobFactory;
 
     void showMessageBox(const QString& title, const QString& message);
 

@@ -7,12 +7,14 @@ HEADERS += \
     mainwindow.h \
     filesmodel.h \
     messagebox.h \
+    jobfactory.h \
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
     filesmodel.cpp \
     messagebox.cpp \
+    jobfactory.cpp \
 
 TARGET = bmpcoderui
 

@@ -25,6 +25,8 @@ public:
     void adjustFilter(const QString&);
 
     const QString& rootPath() const { return m_rootPath; }
+    void handleJobStarted(const QString& cmd, const QString& fileName);
+    void handleJobFinished(const QString& fileName);
 
 private:
     struct FileItem {
@@ -35,6 +37,8 @@ private:
     QString m_rootPath;
     QList<FileItem> m_fileData;
     QList<QString> m_extensionFilters;
+
+    QMap<QString, QString> m_activeJobs;
 
     void refresh();
 

@@ -19,6 +19,18 @@ FilesModel::~FilesModel()
 
 }
 
+void FilesModel::handleJobStarted(const QString& cmd, const QString& fileName)
+{
+    m_activeJobs[fileName] = cmd;
+    refresh();
+}
+
+void FilesModel::handleJobFinished(const QString& fileName)
+{
+    m_activeJobs.remove(fileName);
+    refresh();
+}
+
 void FilesModel::adjustFilter(const QString& filters)
 {
     m_extensionFilters = filters.split(", ");
@@ -66,7 +78,20 @@ QVariant FilesModel::data(const QModelIndex& index, int role) const
     switch(role) {
     case Qt::DisplayRole: {
         const FileItem& item = m_fileData.at(index.row());
-        return QString("%1 (%2)").arg(item.name).arg(item.size);
+        QString jobLabel;
+        if (m_activeJobs.contains(item.name)) {
+            QString cmd = m_activeJobs[item.name];
+            if (cmd == "encode") {
+                jobLabel = "Кодується";
+            } else if (cmd == "decode") {
+                jobLabel = "Розкодовується";
+            }
+        }
+        if (jobLabel.isEmpty()) {
+            return QString("%1 (%2)").arg(item.name).arg(item.size);
+        } else {
+            return QString("%1 (%2) (%3)").arg(item.name).arg(jobLabel).arg(item.size);
+        }
     }
     case FileNameDataRole: {
         const FileItem& item = m_fileData.at(index.row());

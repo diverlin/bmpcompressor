@@ -12,6 +12,7 @@ MainWindow::MainWindow(const QString& startupPath)
     : QMainWindow()
     , m_view(new QListView(this))
     , m_messageBox(new MessageBox)
+    , m_jobFactory(this)
 {
     qInfo() << "use" << startupPath << "as startup location";
 
@@ -41,7 +42,7 @@ MainWindow::MainWindow(const QString& startupPath)
         m_filesModel->adjustFilter(currentText);
     });
 
-    QObject::connect(m_view, &QListView::clicked, [this](const QModelIndex &index) {
+    connect(m_view, &QListView::clicked, [this](const QModelIndex &index) {
         QString fileName = m_filesModel->data(index, FilesModel::FileNameDataRole).toString();
         qDebug() << "Clicked file:" << fileName;
         if (fileName.toLower().endsWith(".png")) {
@@ -52,6 +53,14 @@ MainWindow::MainWindow(const QString& startupPath)
             handleClickOnBarch(fileName);
         }
     });
+
+
+    connect(&m_jobFactory, &JobFactory::jobDone, this, [this](const QString& cmd, const QString& input, const QString& output, const QString& error){
+        if (!error.isEmpty()) {
+            showMessageBox("Job error", error);
+        }
+        m_filesModel->handleJobFinished(QFileInfo(input).fileName());
+    });
 }
 
 void MainWindow::handleClickOnPng(const QString& fileName)
@@ -61,28 +70,24 @@ void MainWindow::handleClickOnPng(const QString& fileName)
 
 void MainWindow::handleClickOnBmp(const QString& fileName)
 {
-    const std::string input = QString(m_filesModel->rootPath()+"/"+fileName).toStdString();
+    QString cmd = "encode";
+    QString input = QString(m_filesModel->rootPath()+"/"+fileName);
     QString baseFileName = QString(fileName).replace(".bmp", "");
-    std::string output = QString(m_filesModel->rootPath()+"/"+baseFileName + ".packed.barch").toStdString();
+    QString output = m_filesModel->rootPath()+"/"+baseFileName + ".packed.barch";
 
-    BmpCoder coder;
-
-    if (!coder.encode(input, output)) {
-        showMessageBox("encoding error", coder.errorMsg().c_str());
-    }
+    m_jobFactory.pushJob(cmd, input, output);
+    m_filesModel->handleJobStarted(cmd, QFileInfo(input).fileName());
 }
 
 void MainWindow::handleClickOnBarch(const QString& fileName)
 {
-    const std::string input = QString(m_filesModel->rootPath()+"/"+fileName).toStdString();
+    QString cmd = "decode";
+    QString input = m_filesModel->rootPath()+"/"+fileName;
     QString baseFileName = QString(fileName).replace(".packed.barch", "");
-    std::string output = QString(m_filesModel->rootPath()+"/"+baseFileName + ".unpacked.bmp").toStdString();
+    QString output = m_filesModel->rootPath()+"/"+baseFileName + ".unpacked.bmp";
 
-    BmpCoder coder;
-
-    if (!coder.decode(input, output)) {
-        showMessageBox("decoding error", coder.errorMsg().c_str());
-    }
+    m_jobFactory.pushJob(cmd, input, output);
+    m_filesModel->handleJobStarted(cmd, QFileInfo(input).fileName());
 }
 
 void MainWindow::showMessageBox(const QString& title, const QString& message)

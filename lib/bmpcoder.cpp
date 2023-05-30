@@ -119,6 +119,8 @@ bool BmpCoder::encode(const std::string& bmpFilePath, const std::string& barkFil
 {
     bool result = false;
 
+    m_errorMsg = "";
+
     BmpLoader bmpLoader;
     auto rawImageData = loadBmp(bmpFilePath);
     if (rawImageData) {
@@ -134,6 +136,8 @@ bool BmpCoder::encode(const std::string& bmpFilePath, const std::string& barkFil
 bool BmpCoder::decode(const std::string& barchFilePath, const std::string& bmpFilePath)
 {
     bool result = false;
+
+    m_errorMsg = "";
 
     auto encodedData = loadBarch(barchFilePath);
     if (encodedData) {
