@@ -9,8 +9,8 @@
 void BmpCoderTest::testEncodeDecodeFile()
 {
     BmpCoder coder;
-    //QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
-    //QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
+    QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
+    QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
 }
 
 void BmpCoderTest::testEncodeDecodeRow()

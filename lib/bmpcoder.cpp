@@ -107,7 +107,7 @@ bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<EncodedIm
 
     if (data) {
         BarchLoader loader;
-        loader.writeToFile(filePath, *data);
+        result = loader.writeToFile(filePath, *data);
     } else {
         std::cerr << "encodedImageData is null, cannot save" << std::endl;
     }
