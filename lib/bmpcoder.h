@@ -25,8 +25,8 @@ private:
     std::vector<std::byte> decodeRow(const std::vector<std::byte>&) const;
     void append(std::vector<std::byte>&, std::byte, int repeat = 1) const;
 
-    std::shared_ptr<RawImageData> loadBmp(const std::string& filePath) const;
-    std::shared_ptr<EncodedImageData> loadBarch(const std::string& filePath) const;
+    std::shared_ptr<RawImageData> loadBmp(const std::string& filePath);
+    std::shared_ptr<EncodedImageData> loadBarch(const std::string& filePath);
 
     bool save(const std::string& filePath, const std::shared_ptr<RawImageData>& data);
     bool save(const std::string& filePath, const std::shared_ptr<EncodedImageData>& data);

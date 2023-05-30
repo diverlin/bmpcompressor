@@ -92,15 +92,15 @@ std::shared_ptr<RawImageData> BmpLoader::readFromFile(const std::string& filePat
 
                 return rawImageData;
             } else {
-                std::cout << "invalid BMP file format. Expected " << m_bitsPerPixel << " bits per pixel. But got=" << header.bitsPerPixel << std::endl;
+                error("invalid BMP file format. Expected " + std::to_string(m_bitsPerPixel) + " bits per pixel. But got=" + std::to_string(header.bitsPerPixel));
             }
         } else {
-            std::cout << "invalid BMP file. Signature mismatch." << std::endl;
+            error("invalid BMP file. Signature mismatch.");
         }
 
         file.close();
     } else {
-        std::cout << "failed to open the file." << std::endl;
+        error("failed to open the file.");
     }
 
     return nullptr;
@@ -164,4 +164,10 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
     file.close();
 
     return true;
+}
+
+void BmpLoader::error(const std::string& error)
+{
+    m_errorMsg = error;
+    std::cerr << error;
 }

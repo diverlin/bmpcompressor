@@ -65,12 +65,12 @@ std::shared_ptr<EncodedImageData> BarchLoader::readFromFile(const std::string& f
 
             return encodedImageData;
         } else {
-            std::cout << "invalid BMP file. Signature mismatch." << std::endl;
+            error("invalid BMP file. Signature mismatch.");
         }
 
         file.close();
     } else {
-        std::cout << "failed to open the file." << std::endl;
+        error("failed to open the file.");
     }
 
     return nullptr;
@@ -95,7 +95,7 @@ bool BarchLoader::writeToFile(const std::string& filePath, const EncodedImageDat
 
     std::ofstream file(filePath, std::ios::binary);
     if (!file) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
+        error("Error opening file: " + filePath);
         return false;
     }
 
@@ -111,4 +111,10 @@ bool BarchLoader::writeToFile(const std::string& filePath, const EncodedImageDat
     file.close();
 
     return true;
+}
+
+void BarchLoader::error(const std::string& error)
+{
+    m_errorMsg = error;
+    std::cerr << error;
 }

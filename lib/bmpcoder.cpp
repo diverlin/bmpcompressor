@@ -12,16 +12,24 @@ BmpCoder::~BmpCoder()
 
 }
 
-std::shared_ptr<RawImageData> BmpCoder::loadBmp(const std::string& filePath) const
+std::shared_ptr<RawImageData> BmpCoder::loadBmp(const std::string& filePath)
 {
     BmpLoader loader;
-    return loader.readFromFile(filePath);
+    std::shared_ptr<RawImageData> data = loader.readFromFile(filePath);
+    if (!loader.errorMsg().empty()) {
+        error(loader.errorMsg());
+    }
+    return data;
 }
 
-std::shared_ptr<EncodedImageData> BmpCoder::loadBarch(const std::string& filePath) const
+std::shared_ptr<EncodedImageData> BmpCoder::loadBarch(const std::string& filePath)
 {
     BarchLoader loader;
-    return loader.readFromFile(filePath);
+    std::shared_ptr<EncodedImageData> data = loader.readFromFile(filePath);
+    if (!loader.errorMsg().empty()) {
+        error(loader.errorMsg());
+    }
+    return data;
 }
 
 
@@ -95,6 +103,9 @@ bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<RawImageD
     if (data) {
         BmpLoader loader;
         result = loader.writeToFile(filePath, *data);
+        if (!loader.errorMsg().empty()) {
+            error(loader.errorMsg());
+        }
     } else {
         error("decodedImageData is null, cannot save");
     }
@@ -108,6 +119,9 @@ bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<EncodedIm
     if (data) {
         BarchLoader loader;
         result = loader.writeToFile(filePath, *data);
+        if (!loader.errorMsg().empty()) {
+            error(loader.errorMsg());
+        }
     } else {
         error("encodedImageData is null, cannot save");
     }
