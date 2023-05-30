@@ -1,8 +1,13 @@
-include($$PWD/app.pri)
+QT += widgets
 
-SOURCES +=
+HEADERS += \
+    mainwindow.h \
 
-HEADERS +=
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+
+TARGET = bmpcoderui
 
 # install
 INSTALLS += target

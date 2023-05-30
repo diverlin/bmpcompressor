@@ -10,7 +10,7 @@ CONFIG += c++17
 
 SUBDIRS += \
     lib \
-    #app \
+    app \
     tests
 
 #app.depends = lib
