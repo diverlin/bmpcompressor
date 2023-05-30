@@ -6,14 +6,14 @@
 
 #include <iostream>
 
-void BmpCoderTest::testCompression()
+void BmpCoderTest::testEncodeDecodeFile()
 {
     BmpCoder coder;
-    //QVERIFY(coder.compress("test-image-1-gs.bmp"));
-    //QVERIFY(coder.compress("test-image-2-gs.bmp"));
+    //QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
+    //QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
 }
 
-void BmpCoderTest::testEncodingDecodingRow()
+void BmpCoderTest::testEncodeDecodeRow()
 {
     BmpCoder coder;
 

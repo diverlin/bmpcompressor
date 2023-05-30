@@ -38,7 +38,7 @@ void printHeader(const BARCHHeader& header)
 }
 #endif // PRINT_FILE_HEADERS
 
-EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
+std::shared_ptr<EncodedImageData> BarchLoader::readFromFile(const std::string& filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
 
@@ -53,19 +53,17 @@ EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
 
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'A') {
-            EncodedImageData encodedImageData(header.dataSize, header.rowIndexesSize, header.width, header.height);
+            std::shared_ptr<EncodedImageData> encodedImageData(new EncodedImageData(header.dataSize, header.rowIndexesSize, header.width, header.height));
 
-            file.read(reinterpret_cast<char*>(encodedImageData.m_rowIndexes.data()), header.rowIndexesSize);
-            file.read(reinterpret_cast<char*>(encodedImageData.m_bytes.data()), header.dataSize);
-
-
+            file.read(reinterpret_cast<char*>(encodedImageData->m_rowIndexes.data()), header.rowIndexesSize);
+            file.read(reinterpret_cast<char*>(encodedImageData->m_bytes.data()), header.dataSize);
 
             // debug
-            std::cout << "encodedImageIndexes=" << encodedImageData.rowIndexes().size() << std::endl;
-            std::cout << "encodedImageData=" << encodedImageData.bytes().size() << std::endl;
+            std::cout << "encodedImageIndexes=" << encodedImageData->rowIndexes().size() << std::endl;
+            std::cout << "encodedImageData=" << encodedImageData->bytes().size() << std::endl;
             // debug
 
-            return std::move(encodedImageData);
+            return encodedImageData;
         } else {
             std::cout << "invalid BMP file. Signature mismatch." << std::endl;
         }
@@ -75,7 +73,7 @@ EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
         std::cout << "failed to open the file." << std::endl;
     }
 
-    return EncodedImageData{0,0};
+    return nullptr;
 }
 
 bool BarchLoader::writeToFile(const std::string& filePath, const EncodedImageData& encodedData)

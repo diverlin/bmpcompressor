@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include <cstdint>
 
@@ -64,7 +65,7 @@ BmpLoader::BmpLoader(int bitsPerPixel)
     }
 }
 
-RawImageData BmpLoader::readFromFile(const std::string& filePath)
+std::shared_ptr<RawImageData> BmpLoader::readFromFile(const std::string& filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
 
@@ -80,16 +81,16 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'M') {
             if (header.bitsPerPixel == m_bitsPerPixel) {
-                RawImageData rawImageData(header.width, header.height, header.imageSize);
+                std::shared_ptr<RawImageData> rawImageData(new RawImageData(header.width, header.height, header.imageSize));
 
                 file.seekg(header.dataOffset, std::ios::beg);
-                file.read(reinterpret_cast<char*>(rawImageData.m_bytes.data()), header.imageSize);
+                file.read(reinterpret_cast<char*>(rawImageData->m_bytes.data()), header.imageSize);
 
 #ifdef PRINT_FILE_HEADERS
-                std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
+                std::cout << "rawImageData=" << rawImageData->bytes().size() << std::endl;
 #endif // PRINT_FILE_HEADERS
 
-                return std::move(rawImageData);
+                return rawImageData;
             } else {
                 std::cout << "invalid BMP file format. Expected " << m_bitsPerPixel << " bits per pixel. But got=" << header.bitsPerPixel << std::endl;
             }
@@ -102,7 +103,7 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
         std::cout << "failed to open the file." << std::endl;
     }
 
-    return RawImageData{};
+    return nullptr;
 }
 
 bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& rawData)

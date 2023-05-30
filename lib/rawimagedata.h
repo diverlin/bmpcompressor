@@ -39,6 +39,7 @@ private:
 
 class DecodedImageData : public RawImageData {
 public:
+    DecodedImageData()=default;
     DecodedImageData(unsigned int width, unsigned int height):RawImageData(width, height){}
     void addDecodedRow(const std::vector<std::byte>& row) {
         utils::extend(m_bytes, row);

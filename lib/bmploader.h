@@ -2,6 +2,7 @@
 #define BMPLOADER_H
 
 #include <string>
+#include <memory>
 
 #include "rawimagedata.h"
 
@@ -10,7 +11,7 @@ public:
     BmpLoader(int bitsPerPixel = 8);
     ~BmpLoader()=default;
 
-    RawImageData readFromFile(const std::string& filePath);
+    std::shared_ptr<RawImageData> readFromFile(const std::string& filePath);
     bool writeToFile(const std::string& filePath, const RawImageData& rawData);
 
 private:

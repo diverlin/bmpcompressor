@@ -19,4 +19,12 @@ void extend(std::vector<std::byte>& body, const std::vector<std::byte>& suffix) 
     std::copy(suffix.begin(), suffix.end(), body.begin()+oldBodySize);
 }
 
+bool endsWith(const std::string& fullString, const std::string& ending) {
+    if (fullString.length() >= ending.length()) {
+        return (fullString.compare(fullString.length() - ending.length(), ending.length(), ending) == 0);
+    } else {
+        return false;
+    }
+}
+
 } // namespace utils

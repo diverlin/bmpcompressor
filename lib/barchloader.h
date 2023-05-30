@@ -2,6 +2,7 @@
 #define BARCHLOADER_H
 
 #include <string>
+#include <memory>
 
 #include "encodedimagedata.h"
 
@@ -10,7 +11,7 @@ public:
     BarchLoader()=default;
     ~BarchLoader()=default;
 
-    EncodedImageData readFromFile(const std::string& filePath);
+    std::shared_ptr<EncodedImageData> readFromFile(const std::string& filePath);
     bool writeToFile(const std::string& filePath, const EncodedImageData& encodedData);
 };
 
