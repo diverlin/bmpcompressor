@@ -59,8 +59,8 @@ std::shared_ptr<EncodedImageData> BarchLoader::readFromFile(const std::string& f
             file.read(reinterpret_cast<char*>(encodedImageData->m_bytes.data()), header.dataSize);
 
             // debug
-            std::cout << "encodedImageIndexes=" << encodedImageData->rowIndexes().size() << std::endl;
-            std::cout << "encodedImageData=" << encodedImageData->bytes().size() << std::endl;
+            //std::cout << "encodedImageIndexes=" << encodedImageData->rowIndexes().size() << std::endl;
+            //std::cout << "encodedImageData=" << encodedImageData->bytes().size() << std::endl;
             // debug
 
             return encodedImageData;

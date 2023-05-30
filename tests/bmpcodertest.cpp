@@ -7,6 +7,20 @@
 
 #include <iostream>
 
+void BmpCoderTest::testEncodeWhiteRow()
+{
+    BmpCoder coder(true);
+
+    const std::vector<unsigned char> decoded1{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}; // all white
+    const std::vector<unsigned char> encoded1{};
+
+    // test encoding
+    QCOMPARE(coder.encodeRow(toBytes(decoded1), decoded1.size()), toBytes(encoded1));
+
+    // test decoding
+    QCOMPARE(coder.decodeRow(toBytes(encoded1), decoded1.size()), toBytes(decoded1));
+}
+
 void BmpCoderTest::testEncodeDecodeRow()
 {
     BmpCoder coder;
@@ -18,12 +32,12 @@ void BmpCoderTest::testEncodeDecodeRow()
     const std::vector<unsigned char> encoded2{0x00,0x02,0x03,0x01,0x02,0x04,0x08,0x03,0x09,0x11};
 
     // test encoding
-    QCOMPARE(coder.encodeRow(toBytes(decoded1)), toBytes(encoded1));
-    QCOMPARE(coder.encodeRow(toBytes(decoded2)), toBytes(encoded2));
+    QCOMPARE(coder.encodeRow(toBytes(decoded1), decoded1.size()), toBytes(encoded1));
+    QCOMPARE(coder.encodeRow(toBytes(decoded2), decoded2.size()), toBytes(encoded2));
 
     // test decoding
-    QCOMPARE(coder.decodeRow(toBytes(encoded1)), toBytes(decoded1));
-    QCOMPARE(coder.decodeRow(toBytes(encoded2)), toBytes(decoded2));
+    QCOMPARE(coder.decodeRow(toBytes(encoded1), decoded1.size()), toBytes(decoded1));
+    QCOMPARE(coder.decodeRow(toBytes(encoded2), decoded2.size()), toBytes(decoded2));
 }
 
 void BmpCoderTest::testEncodeDecodeRows()
@@ -44,7 +58,20 @@ void BmpCoderTest::testEncodeDecodeRows()
 
 void BmpCoderTest::testEncodeDecodeFile()
 {
-    BmpCoder coder;
-    QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
-    QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
+    QList<QString> patterns{"test-image-1-825x1200_gs", "test-image-2-825x1200_gs"};
+    for (const QString& pattern: patterns) {
+        {
+            BmpCoder coder;
+            QVERIFY(coder.encode(extractEmbedded(QString(":/data/%1.bmp").arg(pattern)), QString("%1.barch").arg(pattern).toStdString()));
+            QVERIFY(coder.decode(QString("%1.barch").arg(pattern).toStdString(), QString("%1.decoded.bmp").arg(pattern).toStdString()));
+            QVERIFY(coder.errorMsg().empty());
+        }
+
+        {
+            BmpCoder coder(false);
+            QVERIFY(coder.encode(extractEmbedded(QString(":/data/%1.bmp").arg(pattern)), QString("%1.nwcr.barch").arg(pattern).toStdString()));
+            QVERIFY(coder.decode(QString("%1.nwcr.barch").arg(pattern).toStdString(), QString("%1.nwcr.decoded.bmp").arg(pattern).toStdString()));
+            QVERIFY(coder.errorMsg().empty());
+        }
+    }
 }

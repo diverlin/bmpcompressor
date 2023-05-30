@@ -10,7 +10,7 @@ class EncodedImageData;
 
 class BmpCoder {
 public:
-    BmpCoder()=default;
+    BmpCoder(bool enableWhiteRowEncoding = true);
     ~BmpCoder();
 
     bool encode(const std::string& bmpFilePath, const std::string& barkFilePath);
@@ -19,9 +19,12 @@ public:
     const std::string errorMsg() const { return m_errorMsg; }
 
 private:
+    bool m_enableWhiteRowEncoding = true;
     std::string m_errorMsg;
-    std::vector<std::byte> encodeRow(const std::vector<std::byte>&) const;
-    std::vector<std::byte> decodeRow(const std::vector<std::byte>&) const;
+    mutable int m_whiteRowsCounter = 0;
+
+    std::vector<std::byte> encodeRow(const std::vector<std::byte>&, int imageWidth) const;
+    std::vector<std::byte> decodeRow(const std::vector<std::byte>&, int imageWidth) const;
     void append(std::vector<std::byte>&, std::byte, int repeat = 1) const;
 
     std::shared_ptr<RawImageData> loadBmp(const std::string& filePath);

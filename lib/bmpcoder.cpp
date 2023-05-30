@@ -7,6 +7,11 @@
 #include <map>
 #include <iostream>
 
+BmpCoder::BmpCoder(bool enableWhiteRowEncoding)
+    :
+    m_enableWhiteRowEncoding(enableWhiteRowEncoding)
+{}
+
 BmpCoder::~BmpCoder()
 {
 
@@ -49,7 +54,7 @@ std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImag
                 counter++;
                 if (counter == utils::findNextDivisibleByFour(width)) {
                     counter = 0;
-                    std::vector<std::byte> encodedRow = encodeRow(rowBuff);
+                    std::vector<std::byte> encodedRow = encodeRow(rowBuff, width);
                     encodedImageData->addEncodedRow(encodedRow);
                     rowBuff.clear();
                 }
@@ -83,7 +88,7 @@ std::shared_ptr<RawImageData> BmpCoder::decode(const std::shared_ptr<EncodedImag
                     encodedRow.push_back(bytes[j]);
                 }
                 offset += encodedRow.size();
-                std::vector<std::byte> decodedRow = decodeRow(encodedRow);
+                std::vector<std::byte> decodedRow = decodeRow(encodedRow, encodedImageData->width());
                 decodedImageData->addDecodedRow(decodedRow);
             }
 
@@ -135,6 +140,7 @@ bool BmpCoder::encode(const std::string& bmpFilePath, const std::string& barkFil
     bool result = false;
 
     m_errorMsg = "";
+    m_whiteRowsCounter = 0;
 
     BmpLoader bmpLoader;
     auto rawImageData = loadBmp(bmpFilePath);
@@ -153,6 +159,7 @@ bool BmpCoder::decode(const std::string& barchFilePath, const std::string& bmpFi
     bool result = false;
 
     m_errorMsg = "";
+    m_whiteRowsCounter = 0;
 
     auto encodedData = loadBarch(barchFilePath);
     if (encodedData) {
@@ -165,7 +172,7 @@ bool BmpCoder::decode(const std::string& barchFilePath, const std::string& bmpFi
     return result;
 }
 
-std::vector<std::byte> BmpCoder::encodeRow(const std::vector<std::byte>& row) const
+std::vector<std::byte> BmpCoder::encodeRow(const std::vector<std::byte>& row, int imageWidth) const
 {
     std::vector<std::byte> encodedRow;
     encodedRow.reserve(row.size());
@@ -185,7 +192,7 @@ std::vector<std::byte> BmpCoder::encodeRow(const std::vector<std::byte>& row) co
             }
         }
         if (whiteCount == 4) {
-            encodedRow.push_back(std::byte(0x00));
+            encodedRow.push_back(std::byte(0x00));            
         } else if (blackCount == 4) {
             encodedRow.push_back(std::byte(0x02));
         } else {
@@ -209,13 +216,38 @@ std::vector<std::byte> BmpCoder::encodeRow(const std::vector<std::byte>& row) co
         }
     }
 
+    if (m_enableWhiteRowEncoding) {
+        int white_counter = 0;
+        for (std::byte b: row) {
+            if (b == std::byte(0xff)) {
+                white_counter++;
+                if (white_counter >= imageWidth) { // rows include some padding with 0x00 values which prevents to interpret row as fully white
+                    break;
+                }
+            }
+        }
+        if (white_counter >= imageWidth) {
+            m_whiteRowsCounter++;
+//            std::cout<<"white row counter=" << m_whiteRowsCounter << std::endl;
+            encodedRow.clear();
+        }
+    }
     return std::move(encodedRow);
 }
 
-std::vector<std::byte> BmpCoder::decodeRow(const std::vector<std::byte>& encodedRow) const
+std::vector<std::byte> BmpCoder::decodeRow(const std::vector<std::byte>& encodedRow, int imageWidth) const
 {
     std::vector<std::byte> decodedRow;
-    decodedRow.reserve(3*encodedRow.size());
+
+    if (m_enableWhiteRowEncoding) {
+        if (encodedRow.empty()) {
+            append(decodedRow, std::byte(0xff), imageWidth);
+            if (utils::findNextDivisibleByFour(imageWidth) != imageWidth) {
+                append(decodedRow, std::byte(0x00), utils::findNextDivisibleByFour(imageWidth)-imageWidth);
+            }
+            std::move(decodedRow);
+        }
+    }
 
     bool isUnpackingVarColors = false;
     int varColorCounter = 0;

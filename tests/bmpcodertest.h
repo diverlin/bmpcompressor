@@ -10,6 +10,7 @@ public:
     ~BmpCoderTest()=default;
 
 private slots:
+    void testEncodeWhiteRow();
     void testEncodeDecodeRow();
     void testEncodeDecodeRows();
     void testEncodeDecodeFile();
