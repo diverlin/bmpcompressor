@@ -7,6 +7,7 @@ class QListView;
 class QComboBox;
 
 class FilesModel;
+class MessageBox;
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +21,10 @@ private:
     QListView* m_view = nullptr;
     QComboBox* m_cbExtFilter = nullptr;
     QWidget* m_centralWidget = nullptr;
+
+    MessageBox* m_messageBox = nullptr;
+
+    void showMessageBox(const QString& title, const QString& message);
 };
 
 #endif // MAINWINDOW_H

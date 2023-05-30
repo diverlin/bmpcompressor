@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "filesmodel.h"
+#include "messagebox.h"
 
 #include <QListView>
 #include <QFileInfo>
@@ -9,6 +10,7 @@
 MainWindow::MainWindow(const QString& startupPath)
     : QMainWindow()
     , m_view(new QListView(this))
+    , m_messageBox(new MessageBox)
 {
     qInfo() << "use" << startupPath << "as startup location";
 
@@ -42,6 +44,14 @@ MainWindow::MainWindow(const QString& startupPath)
         QString fileName = m_filesModel->data(index, FilesModel::FileNameDataRole).toString();
         qDebug() << "Clicked file:" << fileName;
     });
+
+    showMessageBox("test", "test");
 }
 
+void MainWindow::showMessageBox(const QString& title, const QString& message)
+{
+    m_messageBox->setMessage(title, message);
+    m_messageBox->show();
+    m_messageBox->raise();
+}
 
