@@ -1,6 +1,8 @@
 #ifndef ENCODEDIMAGEDATA_H
 #define ENCODEDIMAGEDATA_H
 
+#include "utils.h"
+
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -8,6 +10,13 @@
 class EncodedImageData {
 public:
     EncodedImageData()=default;
+    EncodedImageData(std::size_t bytesNum, std::size_t rowsIndexesNum, unsigned int width, unsigned int height):
+        m_width(width)
+        , m_height(height)
+    {
+        m_bytes.resize(bytesNum);
+        m_rowIndexes.resize(rowsIndexesNum);
+    }
     EncodedImageData(unsigned int width, unsigned int height):
         m_width(width)
         , m_height(height)

@@ -14,4 +14,4 @@ public:
     bool writeToFile(const std::string& filePath, const EncodedImageData& encodedData);
 };
 
-#endif // BMPLOADER_H
+#endif // BARCHLOADER_H

@@ -1,28 +1,31 @@
 #include "barchloadertest.h"
 #include <barchloader.h>
 
-//#include <QFileInfo>
-//#include <QFile>
-#include <QTest>
+#include "helper.h"
 
-//#include <iostream>
+#include <QTest>
 
 void BarchLoaderTest::testReadWrite()
 {
-//    BarchLoader loader;
+    EncodedImageData encodedData(800, 600);
 
-//    const QString embeddedInputFilePath = ":/data/128x64_24bits.bmp";
-//    const QString outputFilePath = "out_"+QFileInfo(embeddedInputFilePath).fileName();
+    const std::vector<std::byte> row1 = toBytes({0x01,0x02,0x03});
+    const std::vector<std::byte> row2 = toBytes({0x11,0x05});
+    const std::vector<std::byte> row3 = toBytes({0x06});
+    const std::vector<std::byte> row4 = toBytes({0x04,0x12});
 
-//    const EncodedImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
-//    QCOMPARE(readedRawImageDataOrig.width(), 128);
-//    QCOMPARE(readedRawImageDataOrig.height(), 64);
-//    QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*128)*64);
+    encodedData.addEncodedRow(row1);
+    encodedData.addEncodedRow(row2);
+    encodedData.addEncodedRow(row3);
+    encodedData.addEncodedRow(row4);
 
-//    QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
+    BarchLoader loader;
+    loader.writeToFile("test.barch", encodedData);
 
-//    const RawImageData readedRawImageDataTwin = loader.readFromFile(outputFilePath.toStdString());
-//    QCOMPARE(readedRawImageDataTwin.width(), 128);
-//    QCOMPARE(readedRawImageDataTwin.height(), 64);
-//    QCOMPARE(readedRawImageDataTwin.bytes(), readedRawImageDataOrig.bytes());
+    EncodedImageData loadedEncodedData = loader.readFromFile("test.barch");
+
+    QCOMPARE(encodedData.width(), loadedEncodedData.width());
+    QCOMPARE(encodedData.height(), loadedEncodedData.height());
+    QCOMPARE(encodedData.bytes(), loadedEncodedData.bytes());
+    QCOMPARE(encodedData.rowIndexes(), loadedEncodedData.rowIndexes());
 }

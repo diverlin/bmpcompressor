@@ -11,7 +11,6 @@ void EncodedImageDataTest::testEncodeDecodeIndex()
 
     QCOMPARE(data.getEncodedIndex(9), toBytes({0x09, 0x00}));
     QCOMPARE(data.getDecodedIndex(toBytes({0x09, 0x00})), 9);
-
 }
 
 void EncodedImageDataTest::testConstruct()

@@ -31,6 +31,7 @@ struct BMPHeader {
 };
 #pragma pack(pop)
 
+#ifdef PRINT_FILE_HEADERS
 namespace {
 void printHeader(const BMPHeader& header)
 {
@@ -52,6 +53,7 @@ void printHeader(const BMPHeader& header)
     std::cout << "header.importantColors=" << header.importantColors << std::endl << std::endl;
 }
 }
+#endif // PRINT_FILE_HEADERS
 
 BmpLoader::BmpLoader(int bitsPerPixel)
     :
@@ -70,10 +72,10 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
         BMPHeader header;
         file.read(reinterpret_cast<char*>(&header), sizeof(BMPHeader));
 
-        // debug
-        // std::cout << "readFromFile, header from file:" << filePath << std::endl;
-        // printHeader(header);
-        // debug
+#ifdef PRINT_FILE_HEADERS
+        std::cout << "readFromFile, header from file:" << filePath << std::endl;
+        printHeader(header);
+#endif // PRINT_FILE_HEADERS
 
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'M') {
@@ -83,9 +85,9 @@ RawImageData BmpLoader::readFromFile(const std::string& filePath)
                 file.seekg(header.dataOffset, std::ios::beg);
                 file.read(reinterpret_cast<char*>(rawImageData.m_bytes.data()), header.imageSize);
 
-                // debug
-                // std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
-                // debug
+#ifdef PRINT_FILE_HEADERS
+                std::cout << "rawImageData=" << rawImageData.bytes().size() << std::endl;
+#endif // PRINT_FILE_HEADERS
 
                 return std::move(rawImageData);
             } else {
@@ -133,10 +135,10 @@ bool BmpLoader::writeToFile(const std::string& filePath, const RawImageData& raw
     }
     header.importantColors = 0;
 
-    // debug
-    // std::cout << "writeToFile, header to file:" << filePath << std::endl;
-    // printHeader(header);
-    // debug
+#ifdef PRINT_FILE_HEADERS
+    std::cout << "writeToFile, header to file:" << filePath << std::endl;
+    printHeader(header);
+#endif // PRINT_FILE_HEADERS
 
     std::ofstream file(filePath, std::ios::binary);
     if (!file) {

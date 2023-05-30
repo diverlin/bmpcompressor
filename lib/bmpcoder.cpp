@@ -9,7 +9,7 @@ bool BmpCoder::compress(const std::string& inFilePath) const
 {
     bool result = false;
 
-    EncodedImageData encodedImageData;
+    EncodedImageData encodedImageData{0,0};
 
     BmpLoader loader;
     RawImageData rawDataImage = loader.readFromFile(inFilePath);

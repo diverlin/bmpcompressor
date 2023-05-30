@@ -21,6 +21,7 @@ struct BARCHHeader {
 };
 #pragma pack(pop)
 
+#ifdef PRINT_FILE_HEADERS
 namespace {
 void printHeader(const BARCHHeader& header)
 {
@@ -35,6 +36,7 @@ void printHeader(const BARCHHeader& header)
     std::cout << "header.dataSize=" << header.dataSize << std::endl;
 }
 }
+#endif // PRINT_FILE_HEADERS
 
 EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
 {
@@ -44,17 +46,19 @@ EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
         BARCHHeader header;
         file.read(reinterpret_cast<char*>(&header), sizeof(BARCHHeader));
 
-        // debug
+#ifdef PRINT_FILE_HEADERS
         std::cout << "readFromFile, header from file:" << filePath << std::endl;
         printHeader(header);
-        // debug
+#endif // PRINT_FILE_HEADERS
 
         // check if the file has the correct BMP signature
         if (header.signature[0] == 'B' && header.signature[1] == 'A') {
-            EncodedImageData encodedImageData(header.width, header.height);
+            EncodedImageData encodedImageData(header.dataSize, header.rowIndexesSize, header.width, header.height);
 
             file.read(reinterpret_cast<char*>(encodedImageData.m_rowIndexes.data()), header.rowIndexesSize);
             file.read(reinterpret_cast<char*>(encodedImageData.m_bytes.data()), header.dataSize);
+
+
 
             // debug
             std::cout << "encodedImageIndexes=" << encodedImageData.rowIndexes().size() << std::endl;
@@ -71,7 +75,7 @@ EncodedImageData BarchLoader::readFromFile(const std::string& filePath)
         std::cout << "failed to open the file." << std::endl;
     }
 
-    return EncodedImageData{};
+    return EncodedImageData{0,0};
 }
 
 bool BarchLoader::writeToFile(const std::string& filePath, const EncodedImageData& encodedData)
@@ -86,10 +90,10 @@ bool BarchLoader::writeToFile(const std::string& filePath, const EncodedImageDat
     header.rowIndexesSize = encodedData.rowIndexes().size();
     header.dataSize = encodedData.bytes().size();
 
-    // debug
+#ifdef PRINT_FILE_HEADERS
     std::cout << "writeToFile, header to file:" << filePath << std::endl;
     printHeader(header);
-    // debug
+#endif // PRINT_FILE_HEADERS
 
     std::ofstream file(filePath, std::ios::binary);
     if (!file) {

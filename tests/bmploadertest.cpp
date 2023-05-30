@@ -1,5 +1,6 @@
 #include "bmploadertest.h"
 #include <bmploader.h>
+#include <utils.h>
 
 #include <QFileInfo>
 #include <QFile>
@@ -31,17 +32,6 @@ std::string extractEmbedded(const QString& embeddedFilePath) {
     return result;
 }
 
-int findNextDivisibleByFour(int num) {
-    int remainder = num % 4;
-    if (remainder == 0) {
-        // The number is already divisible by 4
-        return num;
-    } else {
-        // Calculate the next closest number divisible by 4
-        return num + (4 - remainder);
-    }
-}
-
 } // namespace
 
 void BmpLoaderTest::testReadWriteTiny24Bit()
@@ -69,7 +59,7 @@ void BmpLoaderTest::testReadWriteTiny24Bit()
 
         QCOMPARE(readedRawImageDataOrig.width(), w);
         QCOMPARE(readedRawImageDataOrig.height(), h);
-        QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*w)*h);
+        QCOMPARE(readedRawImageDataOrig.bytes().size(), utils::findNextDivisibleByFour(bytesPerPixel*w)*h);
 
         QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
@@ -92,7 +82,7 @@ void BmpLoaderTest::testReadWrite24Bit()
     const RawImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
     QCOMPARE(readedRawImageDataOrig.width(), 128);
     QCOMPARE(readedRawImageDataOrig.height(), 64);
-    QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*128)*64);
+    QCOMPARE(readedRawImageDataOrig.bytes().size(), utils::findNextDivisibleByFour(bytesPerPixel*128)*64);
 
     QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
@@ -113,8 +103,7 @@ void BmpLoaderTest::testReadWrite8Bit()
     const RawImageData readedRawImageDataOrig = loader.readFromFile(extractEmbedded(embeddedInputFilePath));
     QCOMPARE(readedRawImageDataOrig.width(), 825);
     QCOMPARE(readedRawImageDataOrig.height(), 1200);
-    const int padding = 3;
-    QCOMPARE(readedRawImageDataOrig.bytes().size(), findNextDivisibleByFour(bytesPerPixel*825)*1200);
+    QCOMPARE(readedRawImageDataOrig.bytes().size(), utils::findNextDivisibleByFour(bytesPerPixel*825)*1200);
 
     QVERIFY(loader.writeToFile(outputFilePath.toStdString(), readedRawImageDataOrig));
 
