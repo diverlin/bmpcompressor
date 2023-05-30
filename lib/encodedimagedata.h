@@ -2,6 +2,7 @@
 #define ENCODEDIMAGEDATA_H
 
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
 class EncodedImageData {
@@ -21,7 +22,7 @@ public:
 
     void addEncodedRow(const std::vector<std::byte>& row) {
         uint16_t size = row.size();
-        copy(uint16ToBytes(size), m_rowIndexes);
+        copy(getEncodedIndex(size), m_rowIndexes);
         copy(row, m_bytes);
     }
 
@@ -31,21 +32,34 @@ private:
     std::vector<std::byte> m_rowIndexes;
     std::vector<std::byte> m_bytes;
 
-    std::vector<std::byte> uint16ToBytes(uint16_t value) {
+    std::vector<std::byte> getEncodedIndex(uint16_t index) {
         std::vector<std::byte> bytes;
         bytes.resize(sizeof(uint16_t));
-
         // Copy the bytes of the uint16_t into the vector
-        std::memcpy(bytes.data(), &value, sizeof(uint16_t));
+        std::memcpy(bytes.data(), &index, sizeof(uint16_t));
+        return std::move(bytes);
+    }
 
-        return bytes;
+    uint16_t getDecodedIndex(const std::vector<std::byte>& bytes) {
+        if (bytes.size() != 2) {
+            return 0;
+        }
+
+        uint16_t result = 0;
+        result |= static_cast<uint8_t>(bytes[0]); // Assign the first byte to the lower 8 bits
+        result |= static_cast<uint16_t>(bytes[1]) << 8; // Assign the second byte to the upper 8 bits
+
+        return result;
     }
 
     void copy(const std::vector<std::byte>& src, std::vector<std::byte>& dest) {
-        std::copy(src.begin(), src.end(), dest.begin());
+        std::size_t oldDestSize = dest.size();
+        dest.resize(src.size()+dest.size());
+        std::copy(src.begin(), src.end(), dest.begin()+oldDestSize);
     }
 
     friend class BarchLoader;
+    friend class EncodedImageDataTest;
 };
 
 #endif // ENCODEDIMAGEDATA_H

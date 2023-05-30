@@ -1,5 +1,6 @@
 #include "bmpcodertest.h"
 #include <bmpcoder.h>
+#include "helper.h"
 
 #include <QTest>
 
@@ -15,14 +16,6 @@ void BmpCoderTest::testCompression()
 void BmpCoderTest::testEncodingDecodingRow()
 {
     BmpCoder coder;
-
-    auto toBytes = [](const std::vector<unsigned char>& in) {
-        std::vector<std::byte> bytes;
-        for (unsigned char ch: in) {
-            bytes.push_back(std::byte(ch));
-        }
-        return std::move(bytes);
-    };
 
     const std::vector<unsigned char> decoded1{0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x01,0x02,0x04,0x08}; // num % 4 = 0 case
     const std::vector<unsigned char> encoded1{0x00,0x02,0x03,0x01,0x02,0x04,0x08};
