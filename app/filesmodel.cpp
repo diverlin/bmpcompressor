@@ -48,7 +48,7 @@ void FilesModel::refresh()
 
     QFileInfoList fileList = directory.entryInfoList();
     for (const QFileInfo& fi: fileList) {
-        int fileSizeInKb = fi.size()/100;
+        int fileSizeInKb = fi.size()/1000;
         m_fileData.append(FileItem{fi.fileName(), QString("%1Kb").arg(fileSizeInKb)});
     }
 
