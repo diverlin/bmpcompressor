@@ -7,7 +7,6 @@
 
 class RawImageData;
 class EncodedImageData;
-class DecodedImageData;
 
 class BmpCoder {
 public:
@@ -32,7 +31,7 @@ private:
     bool save(const std::string& filePath, const std::shared_ptr<EncodedImageData>& data);
 
     std::shared_ptr<EncodedImageData> encode(const std::shared_ptr<RawImageData>&);
-    std::shared_ptr<DecodedImageData> decode(const std::shared_ptr<EncodedImageData>&);
+    std::shared_ptr<RawImageData> decode(const std::shared_ptr<EncodedImageData>&);
 
     void error(const std::string&);
 

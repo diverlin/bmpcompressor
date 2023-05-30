@@ -43,11 +43,11 @@ std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImag
             std::shared_ptr<EncodedImageData> encodedImageData(new EncodedImageData{width, height});
 
             std::vector<std::byte> rowBuff;
-            unsigned int counter = 0;
+            int counter = 0;
             for (std::size_t i=0; i<bytes.size(); ++i) {
                 rowBuff.push_back(bytes.at(i));
                 counter++;
-                if (counter == width) {
+                if (counter == utils::findNextDivisibleByFour(width)) {
                     counter = 0;
                     std::vector<std::byte> encodedRow = encodeRow(rowBuff);
                     encodedImageData->addEncodedRow(encodedRow);
@@ -64,11 +64,11 @@ std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImag
     return nullptr;
 }
 
-std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<EncodedImageData>& encodedImageData)
+std::shared_ptr<RawImageData> BmpCoder::decode(const std::shared_ptr<EncodedImageData>& encodedImageData)
 {
     if (encodedImageData) {
         if (encodedImageData->isValid()) {
-            std::shared_ptr<DecodedImageData> decodedImageData(new DecodedImageData{encodedImageData->width(), encodedImageData->height()});
+            std::shared_ptr<RawImageData> decodedImageData(new RawImageData{encodedImageData->width(), encodedImageData->height()});
 
             const std::vector<std::byte>& rowIndexes = encodedImageData->rowIndexes();
             const std::vector<std::byte>& bytes = encodedImageData->bytes();
@@ -82,6 +82,7 @@ std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<Encoded
                 for (std::size_t j=offset; j<offset+rowSize; ++j) {
                     encodedRow.push_back(bytes[j]);
                 }
+                offset += encodedRow.size();
                 std::vector<std::byte> decodedRow = decodeRow(encodedRow);
                 decodedImageData->addDecodedRow(decodedRow);
             }
