@@ -89,26 +89,6 @@ std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<Encoded
     return nullptr;
 }
 
-//bool BmpCoder::save(const std::string& filePath)
-//{
-//    bool result = false;
-//    if (utils::endsWith(filePath, ".bmp")) {
-//        if (m_decodedImageData) {
-//            BmpLoader loader;
-//            result = loader.writeToFile(filePath, *m_decodedImageData);
-//        } else {
-//            std::cerr << "decodedImageData is null, cannot save" << std::endl;
-//        }
-//    } else if (utils::endsWith(filePath, ".barch")) {
-//        if (m_encodedImageData) {
-//        BarchLoader loader;
-//            loader.writeToFile(filePath, *m_encodedImageData);
-//        } else {
-//            std::cerr << "encodedImageData is null, cannot save" << std::endl;
-//        }
-//    }
-//}
-
 bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<RawImageData>& data)
 {
     bool result = false;
