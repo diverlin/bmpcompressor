@@ -73,12 +73,21 @@ void MainWindow::handleClickOnPng(const QString& fileName)
     showMessageBox("wrong format", "The *.png format is not supported!");
 }
 
+QString MainWindow::resolveFilePath(QString path, QString fileName) const
+{
+    if (path.isEmpty()) {
+        return fileName;
+    } else {
+        return path + "/" + fileName;
+    }
+}
+
 void MainWindow::handleClickOnBmp(const QString& fileName)
 {
     QString cmd = "encode";
-    QString input = QString(m_filesModel->rootPath()+"/"+fileName);
+    QString input = resolveFilePath(m_filesModel->rootPath(), fileName);
     QString baseFileName = QString(fileName).replace(".bmp", "");
-    QString output = m_filesModel->rootPath()+"/"+baseFileName + ".packed.barch";
+    QString output = resolveFilePath(m_filesModel->rootPath(), baseFileName + ".packed.barch");
 
     m_jobFactory.pushJob(cmd, input, output);
     m_filesModel->handleJobStarted(cmd, QFileInfo(input).fileName());
@@ -87,9 +96,9 @@ void MainWindow::handleClickOnBmp(const QString& fileName)
 void MainWindow::handleClickOnBarch(const QString& fileName)
 {
     QString cmd = "decode";
-    QString input = m_filesModel->rootPath()+"/"+fileName;
+    QString input = resolveFilePath(m_filesModel->rootPath(), fileName);
     QString baseFileName = QString(fileName).replace(".packed.barch", "");
-    QString output = m_filesModel->rootPath()+"/"+baseFileName + ".unpacked.bmp";
+    QString output = resolveFilePath(m_filesModel->rootPath(), baseFileName + ".unpacked.bmp");
 
     m_jobFactory.pushJob(cmd, input, output);
     m_filesModel->handleJobStarted(cmd, QFileInfo(input).fileName());

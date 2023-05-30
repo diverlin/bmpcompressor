@@ -35,6 +35,8 @@ private:
     void handleClickOnPng(const QString& fileName);
     void handleClickOnBmp(const QString& fileName);
     void handleClickOnBarch(const QString& fileName);
+
+    QString resolveFilePath(QString path, QString filename) const;
 };
 
 #endif // MAINWINDOW_H

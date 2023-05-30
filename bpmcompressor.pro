@@ -13,7 +13,6 @@ SUBDIRS += \
     app \
     tests
 
-#app.depends = lib
-
+app.depends = lib
 tests.depends = lib
 

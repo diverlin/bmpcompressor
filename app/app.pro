@@ -1,7 +1,7 @@
 QT += widgets
 
 INCLUDEPATH += $$PWD/../lib
-LIBS += -L$$OUT_PWD/../lib -llibbpmcoder
+LIBS += -L$$OUT_PWD/../ -llibbpmcoder
 
 HEADERS += \
     mainwindow.h \
@@ -16,10 +16,13 @@ SOURCES += \
     messagebox.cpp \
     jobfactory.cpp \
 
-TARGET = bmpcoderui
-
-# install
-INSTALLS += target
-
 FORMS += \
     ui/messagebox.ui
+
+TARGET = bmpcoderui
+
+DESTDIR = $$OUT_PWD/..
+
+INSTALLS += target
+
+

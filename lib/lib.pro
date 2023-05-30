@@ -14,6 +14,8 @@ SOURCES += \
     $$PWD/bmpcoder.cpp \
     $$PWD/utils.cpp \
 
+DESTDIR = $$OUT_PWD/..
+
 TARGET = libbpmcoder
 
 INSTALLS += target
