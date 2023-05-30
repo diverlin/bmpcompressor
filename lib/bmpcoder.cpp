@@ -12,28 +12,27 @@ BmpCoder::~BmpCoder()
 
 }
 
-bool BmpCoder::load(const std::string& filePath)
+std::shared_ptr<RawImageData> BmpCoder::loadBmp(const std::string& filePath) const
 {
-    bool result = false;
-    if (utils::endsWith(filePath, ".bmp")) {
-        BmpLoader loader;
-        m_rawImageData = loader.readFromFile(filePath);
-    } else if (utils::endsWith(filePath, ".barch")) {
-        BarchLoader loader;
-        m_encodedImageData = loader.readFromFile(filePath);
-    }
+    BmpLoader loader;
+    return loader.readFromFile(filePath);
 }
 
-bool BmpCoder::encode()
+std::shared_ptr<EncodedImageData> BmpCoder::loadBarch(const std::string& filePath) const
 {
-    bool result = false;
+    BarchLoader loader;
+    return loader.readFromFile(filePath);
+}
 
-    if (m_rawImageData) {
-        if (m_rawImageData->isValid()) {
-            const std::vector<std::byte>& bytes = m_rawImageData->bytes();
-            const unsigned int width = m_rawImageData->width();
-            const unsigned int height = m_rawImageData->height();
-            EncodedImageData encodedImageData{width, height};
+
+std::shared_ptr<EncodedImageData> BmpCoder::encode(const std::shared_ptr<RawImageData>& rawImageData) const
+{
+    if (rawImageData) {
+        if (rawImageData->isValid()) {
+            const std::vector<std::byte>& bytes = rawImageData->bytes();
+            const unsigned int width = rawImageData->width();
+            const unsigned int height = rawImageData->height();
+            std::shared_ptr<EncodedImageData> encodedImageData(new EncodedImageData{width, height});
 
             std::vector<std::byte> rowBuff;
             unsigned int counter = 0;
@@ -43,30 +42,28 @@ bool BmpCoder::encode()
                 if (counter == width) {
                     counter = 0;
                     std::vector<std::byte> encodedRow = encodeRow(rowBuff);
-                    encodedImageData.addEncodedRow(encodedRow);
+                    encodedImageData->addEncodedRow(encodedRow);
                     rowBuff.clear();
                 }
             }
-            result = true;
+            return encodedImageData;
         } else {
             std::cerr << "invalid rawImageData structure, cannot encode" << std::endl;
         }
     } else {
         std::cerr << "rawImageData is null, cannot encode" << std::endl;
     }
-    return result;
+    return nullptr;
 }
 
-bool BmpCoder::decode()
+std::shared_ptr<DecodedImageData> BmpCoder::decode(const std::shared_ptr<EncodedImageData>& encodedImageData) const
 {
-    bool result = false;
+    if (encodedImageData) {
+        if (encodedImageData->isValid()) {
+            std::shared_ptr<DecodedImageData> decodedImageData(new DecodedImageData{encodedImageData->width(), encodedImageData->height()});
 
-    if (m_encodedImageData) {
-        if (m_encodedImageData->isValid()) {
-            m_decodedImageData = std::shared_ptr<DecodedImageData>(new DecodedImageData{m_encodedImageData->width(), m_encodedImageData->height()});
-
-            const std::vector<std::byte>& rowIndexes = m_encodedImageData->rowIndexes();
-            const std::vector<std::byte>& bytes = m_encodedImageData->bytes();
+            const std::vector<std::byte>& rowIndexes = encodedImageData->rowIndexes();
+            const std::vector<std::byte>& bytes = encodedImageData->bytes();
 
             std::size_t offset = 0;
             for (std::size_t i=0; i<=rowIndexes.size()-2; i+=2) {
@@ -78,8 +75,10 @@ bool BmpCoder::decode()
                     encodedRow.push_back(bytes[j]);
                 }
                 std::vector<std::byte> decodedRow = decodeRow(encodedRow);
-                m_decodedImageData->addDecodedRow(decodedRow);
+                decodedImageData->addDecodedRow(decodedRow);
             }
+
+            return decodedImageData;
         }
         else {
             std::cerr << "invalid encodedImageData structure, cannot decode" << std::endl;
@@ -87,27 +86,53 @@ bool BmpCoder::decode()
     } else {
         std::cerr << "encodedImageData is null, cannot decode" << std::endl;
     }
+    return nullptr;
+}
+
+//bool BmpCoder::save(const std::string& filePath)
+//{
+//    bool result = false;
+//    if (utils::endsWith(filePath, ".bmp")) {
+//        if (m_decodedImageData) {
+//            BmpLoader loader;
+//            result = loader.writeToFile(filePath, *m_decodedImageData);
+//        } else {
+//            std::cerr << "decodedImageData is null, cannot save" << std::endl;
+//        }
+//    } else if (utils::endsWith(filePath, ".barch")) {
+//        if (m_encodedImageData) {
+//        BarchLoader loader;
+//            loader.writeToFile(filePath, *m_encodedImageData);
+//        } else {
+//            std::cerr << "encodedImageData is null, cannot save" << std::endl;
+//        }
+//    }
+//}
+
+bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<RawImageData>& data)
+{
+    bool result = false;
+    if (data) {
+        BmpLoader loader;
+        result = loader.writeToFile(filePath, *data);
+    } else {
+        std::cerr << "decodedImageData is null, cannot save" << std::endl;
+    }
     return result;
 }
 
-bool BmpCoder::save(const std::string& filePath)
+bool BmpCoder::save(const std::string& filePath, const std::shared_ptr<EncodedImageData>& data)
 {
     bool result = false;
-    if (utils::endsWith(filePath, ".bmp")) {
-        if (m_decodedImageData) {
-            BmpLoader loader;
-            result = loader.writeToFile(filePath, *m_decodedImageData);
-        } else {
-            std::cerr << "decodedImageData is null, cannot save" << std::endl;
-        }
-    } else if (utils::endsWith(filePath, ".barch")) {
-        if (m_encodedImageData) {
+
+    if (data) {
         BarchLoader loader;
-            loader.writeToFile(filePath, *m_encodedImageData);
-        } else {
-            std::cerr << "encodedImageData is null, cannot save" << std::endl;
-        }
+        loader.writeToFile(filePath, *data);
+    } else {
+        std::cerr << "encodedImageData is null, cannot save" << std::endl;
     }
+
+    return result;
 }
 
 bool BmpCoder::encode(const std::string& bmpFilePath, const std::string& barkFilePath)
@@ -115,29 +140,26 @@ bool BmpCoder::encode(const std::string& bmpFilePath, const std::string& barkFil
     bool result = false;
 
     BmpLoader bmpLoader;
-    m_rawImageData = bmpLoader.readFromFile(bmpFilePath);
-    if (encode()) {
-        if (m_encodedImageData) {
-            BarchLoader barchLoader;
-            result = barchLoader.writeToFile(barkFilePath, *m_encodedImageData);
+    auto rawImageData = loadBmp(bmpFilePath);
+    if (rawImageData) {
+        auto encodedData = encode(rawImageData);
+        if (encodedData) {
+            result = save(barkFilePath, encodedData);
         }
     }
 
     return result;
 }
 
-bool BmpCoder::decode(const std::string& barkFilePath, const std::string& bmpFilePath)
+bool BmpCoder::decode(const std::string& barchFilePath, const std::string& bmpFilePath)
 {
     bool result = false;
-    BarchLoader barchLoader;
 
-    m_encodedImageData = barchLoader.readFromFile(barkFilePath);
-    if (m_encodedImageData->isValid()) {
-        if (decode()) {
-            if (m_decodedImageData) {
-                BmpLoader bmpLoader;
-                result = bmpLoader.writeToFile(bmpFilePath, *m_decodedImageData);
-            }
+    auto encodedData = loadBarch(barchFilePath);
+    if (encodedData) {
+        auto decodedData = decode(encodedData);
+        if (decodedData) {
+            result = save(bmpFilePath, decodedData);
         }
     }
 
