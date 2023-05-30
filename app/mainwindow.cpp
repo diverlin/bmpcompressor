@@ -37,6 +37,11 @@ MainWindow::MainWindow(const QString& startupPath)
         qInfo() << "current text changed=" << currentText;
         m_filesModel->adjustFilter(currentText);
     });
+
+    QObject::connect(m_view, &QListView::clicked, [this](const QModelIndex &index) {
+        QString fileName = m_filesModel->data(index, FilesModel::FileNameDataRole).toString();
+        qDebug() << "Clicked file:" << fileName;
+    });
 }
 
 

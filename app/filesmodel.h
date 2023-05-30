@@ -8,7 +8,12 @@
 class FilesModel final : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
+    enum FileNameRole {
+        FileNameDataRole = Qt::UserRole + 1 // Define a custom role
+    };
+
     explicit FilesModel(const QString& rootPath, const QList<QString>& extensionFilters, QObject* parent = nullptr);
     ~FilesModel() override final;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override final;

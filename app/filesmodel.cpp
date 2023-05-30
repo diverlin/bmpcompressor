@@ -63,9 +63,15 @@ QVariant FilesModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
-        const FileItem &item = m_fileData.at(index.row());
-        return item.name + "\t\t\t" + item.size;
+    switch(role) {
+    case Qt::DisplayRole: {
+        const FileItem& item = m_fileData.at(index.row());
+        return QString("%1 (%2)").arg(item.name).arg(item.size);
+    }
+    case FileNameDataRole: {
+        const FileItem& item = m_fileData.at(index.row());
+        return item.name;
+    }
     }
 
     return QVariant();
