@@ -1,8 +1,12 @@
 #include <QApplication>
 
 #include <mainwindow.h>
+#include <filemodel.h>
 
 #include <QFileInfo>
+#include <QFileSystemModel>
+#include <QListView>
+
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +31,9 @@ int main(int argc, char *argv[])
     }
 
     QApplication app(argc, argv);
+
     MainWindow* window = new MainWindow(startupPath);
+    window->setFixedSize(800, 600);
     window->show();
 
     return app.exec();
