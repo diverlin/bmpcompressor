@@ -1,17 +1,11 @@
 #include "bmpcodertest.h"
 #include <bmpcoder.h>
+#include <bmploader.h>
 #include "helper.h"
 
 #include <QTest>
 
 #include <iostream>
-
-void BmpCoderTest::testEncodeDecodeFile()
-{
-    BmpCoder coder;
-    QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
-    QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
-}
 
 void BmpCoderTest::testEncodeDecodeRow()
 {
@@ -30,4 +24,27 @@ void BmpCoderTest::testEncodeDecodeRow()
     // test decoding
     QCOMPARE(coder.decodeRow(toBytes(encoded1)), toBytes(decoded1));
     QCOMPARE(coder.decodeRow(toBytes(encoded2)), toBytes(decoded2));
+}
+
+void BmpCoderTest::testEncodeDecodeRows()
+{
+    BmpCoder coder;
+
+    BmpLoader bpmLoader;
+    auto rawData = bpmLoader.readFromFile(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"));
+
+    auto encodedData = coder.encode(rawData);
+    auto decodedData = coder.decode(encodedData);
+
+    QCOMPARE(decodedData->width(), rawData->width());
+    QCOMPARE(decodedData->height(), rawData->height());
+    QCOMPARE(decodedData->bytes().size(), rawData->bytes().size());
+    QCOMPARE(decodedData->bytes(), rawData->bytes());
+}
+
+void BmpCoderTest::testEncodeDecodeFile()
+{
+    BmpCoder coder;
+    QVERIFY(coder.encode(extractEmbedded(":/data/test-image-1-825x1200_gs.bmp"), "test-image-1-825x1200_gs.barch"));
+    QVERIFY(coder.decode("test-image-1-825x1200_gs.barch", "_decoded_test-image-1-825x1200_gs.bmp"));
 }
