@@ -9,7 +9,8 @@ public:
     BmpCoder()=default;
     ~BmpCoder()=default;
 
-    bool compress(const std::string& inFilePath) const;
+    bool encode(const std::string& bmpFilePath, const std::string& barkFilePath) const;
+    bool decode(const std::string& barkFilePath, const std::string& bmpFilePath) const;
 
 private:
     std::vector<std::byte> encodeRow(const std::vector<std::byte>&) const;

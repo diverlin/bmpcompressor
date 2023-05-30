@@ -13,4 +13,10 @@ int findNextDivisibleByFour(int num) {
     }
 }
 
+void extend(std::vector<std::byte>& body, const std::vector<std::byte>& suffix) {
+    std::size_t oldBodySize = body.size();
+    body.resize(suffix.size()+body.size());
+    std::copy(suffix.begin(), suffix.end(), body.begin()+oldBodySize);
+}
+
 } // namespace utils

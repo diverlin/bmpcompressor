@@ -23,25 +23,21 @@ public:
     {}
     ~EncodedImageData()=default;
 
-    int width() const { return m_width; }
-    int height() const { return m_height; }
+    bool isValid() const { return (m_width > 0) && (m_height > 0) && (m_rowIndexes.size() > 0) && (m_bytes.size() > 0) && (m_rowIndexes.size()%2==0); }
+
+    unsigned int width() const { return m_width; }
+    unsigned int height() const { return m_height; }
 
     const std::vector<std::byte>& rowIndexes() const { return m_rowIndexes; }
     const std::vector<std::byte>& bytes() const { return m_bytes; }
 
     void addEncodedRow(const std::vector<std::byte>& row) {
         uint16_t size = row.size();
-        copy(getEncodedIndex(size), m_rowIndexes);
-        copy(row, m_bytes);
+        utils::extend(m_rowIndexes, getEncodedIndex(size));
+        utils::extend(m_bytes, row);
     }
 
-private:
-    int m_width = 0;
-    int m_height = 0;
-    std::vector<std::byte> m_rowIndexes;
-    std::vector<std::byte> m_bytes;
-
-    std::vector<std::byte> getEncodedIndex(uint16_t index) {
+    static std::vector<std::byte> getEncodedIndex(uint16_t index) {
         std::vector<std::byte> bytes;
         bytes.resize(sizeof(uint16_t));
         // Copy the bytes of the uint16_t into the vector
@@ -49,7 +45,7 @@ private:
         return std::move(bytes);
     }
 
-    uint16_t getDecodedIndex(const std::vector<std::byte>& bytes) {
+    static uint16_t getDecodedIndex(const std::vector<std::byte>& bytes) {
         if (bytes.size() != 2) {
             return 0;
         }
@@ -61,11 +57,11 @@ private:
         return result;
     }
 
-    void copy(const std::vector<std::byte>& src, std::vector<std::byte>& dest) {
-        std::size_t oldDestSize = dest.size();
-        dest.resize(src.size()+dest.size());
-        std::copy(src.begin(), src.end(), dest.begin()+oldDestSize);
-    }
+private:
+    unsigned int m_width = 0;
+    unsigned int m_height = 0;
+    std::vector<std::byte> m_rowIndexes;
+    std::vector<std::byte> m_bytes;
 
     friend class BarchLoader;
     friend class EncodedImageDataTest;
