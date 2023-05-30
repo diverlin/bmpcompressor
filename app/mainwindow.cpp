@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QVBoxLayout>
 #include <QComboBox>
+#include <QLabel>
 
 MainWindow::MainWindow(const QString& startupPath)
     : QMainWindow()
@@ -34,8 +35,12 @@ MainWindow::MainWindow(const QString& startupPath)
         m_cbExtFilter->addItem(filter);
     }
 
+    m_lbLocation = new QLabel(this);
+    m_lbLocation->setText(startupPath);
+
     layout->addWidget(m_cbExtFilter);
     layout->addWidget(m_view);
+    layout->addWidget(m_lbLocation);
 
     connect(m_cbExtFilter, &QComboBox::currentTextChanged, this, [this](const QString& currentText){
         qInfo() << "current text changed=" << currentText;

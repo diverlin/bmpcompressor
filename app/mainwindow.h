@@ -7,6 +7,7 @@
 
 class QListView;
 class QComboBox;
+class QLabel;
 
 class FilesModel;
 class MessageBox;
@@ -23,6 +24,7 @@ private:
     QListView* m_view = nullptr;
     QComboBox* m_cbExtFilter = nullptr;
     QWidget* m_centralWidget = nullptr;
+    QLabel* m_lbLocation = nullptr;
 
     MessageBox* m_messageBox = nullptr;
 
